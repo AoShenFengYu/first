@@ -14,4 +14,55 @@
     <color name="text_color_secondary">#666666</color>
     <color name="sticker_pack_publisher_text_color">#929292</color>
     <color name="create_pack_dialog_count_color">#9E9E9E</color>
+
+    <color name="title_bar_text_color_primary">#000000</color>
+    <color name="text_color_primary">#333333</color>
+    <color name="text_color_disabled">#999999</color>
+    <color name="text_color_white">@android:color/white</color>
+
+    <color name="create_pack_btn_enable">#0DB4AD</color>
+    <color name="create_pack_btn_disable">#93D6D3</color>
+
+    <color name="select_album_cover_mask">#4D000000</color>
+
+    <color name="publish_btn_enable">#0DB4AD</color>
+    <color name="publish_btn_disable">#93D6D3</color>
+
+    <color name="crop__button_bar">#f3f3f3</color>
+    <color name="crop__button_text">#666666</color>
+    <color name="crop__selector_pressed">#1a000000</color>
+    <color name="crop__selector_focused">#77000000</color>
+
+    <color name="tab_unselect_text_color">#929292</color>
+    <color name="tab_select_text_color">@color/colorAccent</color>
+
+    <color name="recyclerview_divider">#E0E0E0</color>
+
+    <color name="white_color_item_border">#D8D8D8</color>
+
+    <color name="edit_color_1">#000000</color>
+    <color name="edit_color_2">#FFFFFF</color>
+    <color name="edit_color_3">#FF0000</color>
+    <color name="edit_color_4">#FF9900</color>
+    <color name="edit_color_5">#FFEE00</color>
+    <color name="edit_color_6">#00EE00</color>
+    <color name="edit_color_7">#0099FF</color>
+    <color name="edit_color_8">#EE00FF</color>
+
+    <color name="crop_outside_color">#66000000</color>
+    <color name="crop_free_line_color">#00ff00</color>
+
+    <color name="disable_color">#D8D8D8</color>
+
+    <color name="network_retry_bg_color">#EEEEEE</color>
+
+    <color name="edit_text_helper_rect_line_color">#00ee00</color>
+
+    <color name="brush_size_seek_bar_bg">#DDDDDD</color>
+    <color name="brush_size_seek_bar_progress">#FF57BE37</color>
+
+    <color name="draw_eraser_icon_border">#59FFFFFF</color>
+    <color name="draw_eraser_icon">#99FFFFFF</color>
+
+    <color name="crop_edit_touched_icon">#8057BE37</color>
 </resources>

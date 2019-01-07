@@ -58,4 +58,14 @@
     <string name="tab_erase">Erase</string>
     <string name="tab_restore">Restore</string>
     <string name="pack_item_add">ADD</string>
+
+    <string name="add_change_to_whatsapp">Add Changes to WhatsApp</string>
+    <string name="enter_phone_album">Enter Phone Album</string>
+    <string name="launch_camera">Camera</string>
+    <string name="invalid_pack_string">You need to have at least 3 stickers and 1 icon in your pack before you can publish</string>
+    <string name="crop__saving">Saving picture…</string>
+    <string name="crop__wait">Please wait</string>
+    <string name="crop__pick_error">No image sources available</string>
+    <string name="crop__done">DONE</string>
+    <string name="crop__cancel">CANCEL</string>
 </resources>
