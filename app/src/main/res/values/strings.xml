@@ -59,6 +59,9 @@
     <string name="tab_restore">Restore</string>
     <string name="pack_item_add">ADD</string>
 
+    <string name="string_borders">Borders</string>
+    <string name="default_text_tool_hint">add text</string>
+
     <string name="add_change_to_whatsapp">Add Changes to WhatsApp</string>
     <string name="enter_phone_album">Enter Phone Album</string>
     <string name="launch_camera">Camera</string>
