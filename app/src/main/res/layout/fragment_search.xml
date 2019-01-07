@@ -109,7 +109,6 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/gifsearch_bottom_recyclerview"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:paddingRight="4dp"
