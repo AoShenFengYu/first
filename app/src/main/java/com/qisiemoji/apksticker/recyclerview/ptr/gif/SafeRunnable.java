@@ -1,0 +1,26 @@
+package com.qisiemoji.apksticker.recyclerview.ptr.gif;
+
+/**
+ * Runnable for {@link java.util.concurrent.Executor} which propagates exceptions to default uncaught
+ * exception handler.
+ */
+abstract class SafeRunnable implements Runnable {
+    final GifDrawable mGifDrawable;
+
+    SafeRunnable(GifDrawable gifDrawable) {
+        mGifDrawable = gifDrawable;
+    }
+
+    @Override
+    public final void run() {
+        try {
+            if (!mGifDrawable.isRecycled()) {
+                doWork();
+            }
+        } catch (Throwable throwable) {
+
+        }
+    }
+
+    abstract void doWork();
+}

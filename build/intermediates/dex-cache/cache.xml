@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/xm180319/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.3.1/ecb6e1f8e4b0e84c4b886c2f14a1500caf309757/gson-2.3.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.0"
+        sha1="ecb6e1f8e4b0e84c4b886c2f14a1500caf309757">
+        <dex dex="/Users/xm180319/AndroidStudioProjects/wuren/app/build/intermediates/transforms/dex/debug/folders/1000/10/gson-2.3.1_b9550fc92b96d1077a020ae6e880b841513239b3/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/xm180319/AndroidStudioProjects/wuren/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.0"
+        sha1="3be78ebc2706b2e1fe2f12d5726887a92d6c183b">
+        <dex dex="/Users/xm180319/AndroidStudioProjects/wuren/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_c582d426aef6c3f4d445b454140abdef1913a878/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/xm180319/AndroidStudioProjects/wuren/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.0"
+        sha1="85a4995a84af241a64f1ef395927d4b5a8ab1802">
+        <dex dex="/Users/xm180319/AndroidStudioProjects/wuren/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_fffcce80afe55aef9bcf9844ddc2887d6123a8fd/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/xm180319/.android/build-cache/acd4445ed0570aef7627f4ed4c9d2ae1f7973e97/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.0"
+        sha1="dadf467cba6534818da9c3c907114ff1374e5f14">
+        <dex dex="/Users/xm180319/AndroidStudioProjects/wuren/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_14289d1f3a72c150ae75a685d9269011f17a1bfc/classes.dex" />
+    </item>
+
+</items>

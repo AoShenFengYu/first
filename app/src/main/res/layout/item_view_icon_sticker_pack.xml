@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="16dp"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/image_content"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_gravity="center">
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/image_mask"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/sc_ic_cover"
+            />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:layout_marginEnd="2dp"
+            android:layout_marginTop="2dp"
+            android:src="@drawable/sc_ic_delete"/>
+    </FrameLayout>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/pack_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:gravity="center_horizontal" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/pack_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:textSize="15sp"
+        android:textColor="@color/sticker_pack_publisher_text_color"
+        android:gravity="center_horizontal" />
+
+</LinearLayout>
+

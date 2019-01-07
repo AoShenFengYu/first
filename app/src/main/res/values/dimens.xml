@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="refresh_header_height">95dp</dimen>
+    <dimen name="tab_left_right">10dp</dimen>
+    <dimen name="actionbar_tab_selected_text_size">18sp</dimen>
+    <dimen name="actionbar_tab_text_size">18sp</dimen>
+    <dimen name="gif_search_edit_height">42dp</dimen>
+
+    <dimen name="preview_side_margin">16dp</dimen>
+    <dimen name="margin_from_tray_to_name">16dp</dimen>
+    <dimen name="sticker_pack_details_image_size">80dp</dimen>
+    <dimen name="sticker_pack_details_image_padding">8dp</dimen>
+    <dimen name="fading_edge_length">8dp</dimen>
+    <dimen name="sticker_pack_list_item_preview_image_size">50dp</dimen>
+    <dimen name="sticker_pack_list_item_preview_image_padding">4dp</dimen>
+    <dimen name="sticker_pack_list_item_row_dot_horizontal_padding">4dp</dimen>
+
+    <dimen name="dialog_download_sticker_progress_layout_width">130dp</dimen>
+
+    <dimen name="dp_10">10dp</dimen>
+    <dimen name="dp_4">4dp</dimen>
+    <dimen name="dp_40">40dp</dimen>
+    <dimen name="dp_72">72dp</dimen>
+    <dimen name="sp_12">12sp</dimen>
+    <dimen name="sp_14">14sp</dimen>
+    <dimen name="sp_16">16sp</dimen>
+
+    <dimen name="publish_button_width">328dp</dimen>
+    <dimen name="publish_button_height">45dp</dimen>
+
+</resources>

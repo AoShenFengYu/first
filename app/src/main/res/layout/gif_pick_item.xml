@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/gif_item_layout"
+    android:background="@drawable/gifkb_bg_gif_loading">
+
+    <com.qisiemoji.apksticker.views.RoundAngleImageView
+        android:id="@+id/gif_pick_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="@drawable/gif_display_viewholder_bg"
+        android:scaleType="fitXY" />
+
+    <ImageView android:id="@+id/gif_favorite_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:src="@drawable/gifkb_ic_renew"/>
+
+    <ImageView android:id="@+id/gif_pick_tick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/gifkb_like_ic_normal"/>
+
+</RelativeLayout>

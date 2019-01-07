@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.kikatech.koala:koala_sdk-t1.0.0.30.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.android/build-cache/460eed26bedc5468abadfe5483546131ca6448b6/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/460eed26bedc5468abadfe5483546131ca6448b6/output/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.kikatech.koala/koala_sdk/t1.0.0.30.1/5ce33560f80c1d68e0447f83222bede71b49ac74/koala_sdk-t1.0.0.30.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>

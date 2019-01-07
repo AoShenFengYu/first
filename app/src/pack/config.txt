@@ -1,0 +1,4 @@
+version_code:4
+label:dogaa
+name:cute dogaa
+application_id:com.qisiemoji.inputmethod.sticker.ca

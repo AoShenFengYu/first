@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <com.qisiemoji.apksticker.recyclerview.refresh.CustomRefreshFrameLayout
+        android:id="@+id/wave_channel"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="60dp"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/sticker_recyclerview"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:scrollbars="vertical"
+            android:background="#ffffff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" />
+    </com.qisiemoji.apksticker.recyclerview.refresh.CustomRefreshFrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/main_activity_wa_layout"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/white_bg"
+        android:layout_height="80dp">
+
+        <RelativeLayout
+            android:id="@+id/main_activity_wa_btn_layout"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_centerInParent="true"
+            android:background="#4ABC34"
+            android:layout_height="40dp">
+
+            <TextView
+                android:id="@+id/main_activity_wa_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="  ADD TO WHATSAPP"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:drawableLeft="@drawable/whatsapp_icon_mini"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

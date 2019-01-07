@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0DB4AD</color>
+    <color name="colorPrimaryDark">#0DB4AD</color>
+    <color name="colorAccent">#0DB4AD</color>
+
+    <color name="inactiveAddButtonColor">#B3B3B3</color>
+    <color name="infoPageBackgroundColor">#EBEBEB</color>
+    <color name="actionBarArrowColor">@color/colorAccent</color>
+    <color name="white">#ffffffff</color>
+    <color name="loading_color">#ffffff</color>
+    <color name="gif_display_viewholdr_select">#40000000</color>
+    <color name="background_color">#FAFAFA</color>
+    <color name="text_color_secondary">#666666</color>
+    <color name="sticker_pack_publisher_text_color">#929292</color>
+    <color name="create_pack_dialog_count_color">#9E9E9E</color>
+</resources>

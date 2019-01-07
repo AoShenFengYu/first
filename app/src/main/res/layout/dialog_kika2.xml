@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#20000000">
+
+    <ImageView
+        android:id="@+id/dialog_bg"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/kika_sticker_app_bg_banner_01"/>
+
+    <ImageView
+        android:id="@+id/dialog_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/kika_sticker_app_ic_close"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"/>
+    
+    <RelativeLayout
+        android:id="@+id/dialog_layout"
+        android:layout_below="@id/dialog_bg"
+        android:layout_width="match_parent"
+        android:paddingBottom="4dp"
+        android:paddingTop="4dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/dialog_ic"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/kika_sticker_app_ic_kika_02"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/dialog1_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/kika_sticker_app_ic_ad"/>
+
+        <TextView
+            android:id="@+id/dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/dialog_ic"
+            android:layout_marginLeft="15dp"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:layout_marginRight="20dp"
+            android:textSize="16sp"
+            android:layout_below="@id/dialog_ic"
+            android:textColor="#ffffff"
+            android:text="Activate Kika Keyboard to unlock" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/dialog_btn"
+        android:layout_below="@id/dialog_layout"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="5dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:paddingTop="5dp"
+        android:textStyle="bold"
+        android:paddingBottom="5dp"
+        android:text="DOWNLOAD"
+        android:background="@drawable/kika_sticker_app_bt_green"
+        android:textSize="14sp"/>
+</RelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string name="str_pull_refresh">Pull down to refresh</string>
+    <string name="str_loading">Refreshing&#8230;</string>
+    <string name="str_free_refresh">Release to refresh</string>
+    <string name="str_footer_loading">Generating recommendations for you</string>
+
+    <string name="pull_down_refresh">Pull down to loading</string>
+    <string name="pull_down_release">Release to loading</string>
+    <string name="pull_down_loading">Loading&#8230;</string>
+    <string name="pull_up_loading">Generating recommendations&#8230;</string>
+
+    <string name="str_refresh_time">最后更新：%1$s</string>
+    <string name="str_refresh_time_just">最后更新：刚刚更新</string>
+    <string name="str_refresh_time_today">最后更新：今天 %1$s</string>
+
+    <string name="str_footer_end">No More!</string>
+    <string name="str_footer_end1">No More</string>
+    <string name="str_footer_error">Network error</string>
+    <string name="str_footer_fail">Loading</string>
+    <string name="str_up_show_all">Loading Data</string>
+</resources>
