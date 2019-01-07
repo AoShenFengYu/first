@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -47,11 +48,9 @@ import com.giphy.sdk.core.network.api.GPHApiClient;
 import com.giphy.sdk.core.network.response.ListMediaResponse;
 import com.qisiemoji.apksticker.BuildConfig;
 import com.qisiemoji.apksticker.R;
-import com.qisiemoji.apksticker.domain.StickerItem;
 import com.qisiemoji.apksticker.recyclerview.SpacesItemDecoration;
 import com.qisiemoji.apksticker.recyclerview.ptr.listener.IRefreshListener;
 import com.qisiemoji.apksticker.recyclerview.refresh.CustomRefreshFrameLayout;
-import com.qisiemoji.apksticker.whatsapp.SelectAlbumStickersActivity;
 import com.qisiemoji.apksticker.whatsapp.Sticker;
 import com.qisiemoji.apksticker.whatsapp.StickerPack;
 import com.qisiemoji.apksticker.whatsapp.StickerPackDetailsActivity;
@@ -65,9 +64,7 @@ import java.util.List;
 
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_SELECTED_LIST;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_STICKER_PACK_DATA;
-import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST_CODE_EDIT_IMAGE;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST_CODE_PERMISSION_STORAGE;
-import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST_CODE_SELECT_ALBUM_STICKERS;
 
 public class SearchFragment extends Fragment implements IRefreshListener, View.OnClickListener, GifSearchClickListener {
     private static final int PERMISSION_STORAGE_REQUEST_CODE = 100;
@@ -75,6 +72,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     public static final int SCAN_GIF_FILES_FAIL = 2000;
 
     private Handler handler;
+
+    private LineBreakLayout defaultTrendTagsLayout;
 
     private RecyclerView recyclerView;
 
@@ -182,6 +181,16 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         GridLayoutManager ms = new GridLayoutManager(getActivity(),4);
         bottomRecyclerView.setLayoutManager(ms);
         bottomRecyclerView.setAdapter(mSelectStickerAdapter);
+
+        defaultTrendTagsLayout = rootView.findViewById(R.id.lineBreakLayout);
+        setupDefaultTrendTags(new LineBreakLayout.LineBreakLayoutListener() {
+            @Override
+            public void onSelect(String s) {
+                editText.setText(s);
+                clickSend();
+                defaultTrendTagsLayout.setVisibility(View.GONE);
+            }
+        });
 
         askForStoragePermission();
         return rootView;
@@ -849,6 +858,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     private void onStoragePermissionGranted() {
         initStickerPack();
         showDetailContent();
+        defaultTrendTagsLayout.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -891,4 +901,28 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         mSelectStickerAdapter.notifyDataSetChanged();
     }
 
+    private void setupDefaultTrendTags(LineBreakLayout.LineBreakLayoutListener listener) {
+        List<LineBreakLayout.LineBreakLayoutItem> lable = new ArrayList<>();
+        // fixme use hard code now, should get the list from server
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("love", Color.RED));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("happy birthday", Color.BLUE));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem( "hello", Color.BLACK));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem( "yes", Color.CYAN));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("no", Color.GRAY));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("kiss", Color.GREEN));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("excited", Color.DKGRAY));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("sad", Color.RED));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("what", Color.BLUE));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("crying", Color.YELLOW));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("happy", Color.BLUE));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("trump", Color.CYAN));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("hahaha", Color.RED));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("no", Color.RED));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("kiss", Color.BLACK));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("excited", Color.GREEN));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("sad", Color.CYAN));
+        defaultTrendTagsLayout.setItems(lable, true);
+        defaultTrendTagsLayout.setLineBreakLayoutListener(listener);
+        defaultTrendTagsLayout.setVisibility(View.GONE);
+    }
 }
