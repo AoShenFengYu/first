@@ -765,4 +765,10 @@
             <enum name="never" value="2" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="LineBreakLayout">
+        <attr name="leftAndRightSpace" format="dimension" />
+        <attr name="rowSpace" format="dimension" />
+    </declare-styleable>
+
 </resources>

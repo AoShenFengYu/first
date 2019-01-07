@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
     android:background="@color/white"
     android:layout_width="match_parent"
@@ -105,6 +106,20 @@
         android:layout_height="6dp"
         android:layout_below="@id/search_header"
         android:background="@drawable/gifkb_bg_corner_gif_blue"/>
+
+    <com.qisiemoji.apksticker.whatsapp.search.LineBreakLayout
+        android:id="@+id/lineBreakLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/search_header"
+        app:leftAndRightSpace="@dimen/dp_10"
+        app:rowSpace="@dimen/dp_10"
+        android:background="@android:color/white">
+
+    </com.qisiemoji.apksticker.whatsapp.search.LineBreakLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/gifsearch_bottom_recyclerview"
