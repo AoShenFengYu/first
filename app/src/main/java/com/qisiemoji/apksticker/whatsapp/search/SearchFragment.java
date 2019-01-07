@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -178,8 +179,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
         bottomRecyclerView = rootView.findViewById(R.id.gifsearch_bottom_recyclerview);
         mSelectStickerAdapter = new SelectStickerAdapter(getActivity(), mAllItems, mSelectStickerAdapterCallback);
-        LinearLayoutManager ms = new LinearLayoutManager(getActivity());
-        ms.setOrientation(LinearLayoutManager.HORIZONTAL);
+        GridLayoutManager ms = new GridLayoutManager(getActivity(),4);
         bottomRecyclerView.setLayoutManager(ms);
         bottomRecyclerView.setAdapter(mSelectStickerAdapter);
 
