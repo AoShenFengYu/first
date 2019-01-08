@@ -95,13 +95,15 @@ public class GifPickActivity extends AppCompatActivity{
     protected void onResume() {
         super.onResume();
         Media media = getIntent().getParcelableExtra("media");
-//        if(media == null){
-//            return;
-//        }
+        if(media == null){
+            return;
+        }
         Thread thread = new GifPickDownloadRunnable(this,handler,media);
         thread.start();
 
-        Glide.with(this).load("https://media3.giphy.com/media/GCvktC0KFy9l6/200w.gif").into(img);
+        String url = "http://media2.giphy.com/media/"+media.getId()+"/100.gif";
+        Glide.with(this).load(url).into(img);
+//        Glide.with(this).load("https://media3.giphy.com/media/GCvktC0KFy9l6/200w.gif").into(img);
 
     }
 

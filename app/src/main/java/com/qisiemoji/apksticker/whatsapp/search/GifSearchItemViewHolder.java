@@ -38,12 +38,12 @@ public class GifSearchItemViewHolder extends BaseSearchViewHolder {
         favImg = (ImageView) itemView.findViewById(R.id.gif_favorite);
         errorImg = (ImageView) itemView.findViewById(R.id.gif_favorite_error);
         progressBar = (ProgressBar) itemView.findViewById(R.id.gif_holder_progress_bar);
-        img.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO
-            }
-        });
+//        img.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                //TODO
+//            }
+//        });
 
         errorImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,8 +80,9 @@ public class GifSearchItemViewHolder extends BaseSearchViewHolder {
         layout.setBackgroundResource(R.drawable.gifkb_bg_gif_loading);
         String url = "http://media2.giphy.com/media/"+info.getId()+"/100.gif";
         Glide.with(mContext).load(url)
-//                .asGif()
-//                .error(R.drawable.gifkb_ic_renew)
+                .fitCenter()
+                .placeholder(R.drawable.gifkb_ic_renew)
+                .error(R.drawable.gifkb_ic_renew)
                 .listener(new RequestListener<String, GlideDrawable>() {
                     @Override
                     public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -104,9 +105,6 @@ public class GifSearchItemViewHolder extends BaseSearchViewHolder {
                         return false;
                     }
                 })
-//                .transform(new CenterCrop(mContext), new GlideRoundTransform(mContext,5))
-//                .crossFade()
-//                .placeholder(R.color.gif_display_background)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(img);
     }
