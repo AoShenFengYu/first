@@ -61,7 +61,12 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);ArrayList<String> list = data.getStringArrayListExtra(EXTRA_SELECTED_LIST);
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data == null) {
+            return;
+        }
+
+        ArrayList<String> list = data.getStringArrayListExtra(EXTRA_SELECTED_LIST);
         if(fragment == null){
             return;
         }
