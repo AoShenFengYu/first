@@ -19,9 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
@@ -181,6 +179,14 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         GridLayoutManager ms = new GridLayoutManager(getActivity(),4);
         bottomRecyclerView.setLayoutManager(ms);
         bottomRecyclerView.setAdapter(mSelectStickerAdapter);
+
+        createStickerPack = rootView.findViewById(R.id.create_sticker_pack);
+        createStickerPack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO create sticker pack or publish
+            }
+        });
 
         defaultTrendTagsLayout = rootView.findViewById(R.id.lineBreakLayout);
         setupDefaultTrendTags(new LineBreakLayout.LineBreakLayoutListener() {
@@ -435,10 +441,10 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     /***
      * 底部已添加sticker的view
      */
+    private ImageView createStickerPack;
     private RecyclerView bottomRecyclerView;
     private SelectStickerAdapter mSelectStickerAdapter;
     private WAStickerManager.PublishStickerPackTask mPublishStickerPackTask;
-    private int mLastClickAddIndex;
     private StickerPack mStickerPack;
     private String mPackName;
     private String mAuthor;
@@ -460,16 +466,23 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         if (imagePath == null) {
             return;
         }
-        mAllItems.get(mLastClickAddIndex).imageUrl = imagePath;
-        mSelectStickerAdapter.notifyItemChanged(mLastClickAddIndex);
-        if (mLastClickAddIndex == 0) {
-            mStickerPack.trayImageFile = imagePath;
-        } else {
-            mStickerPack.stickers.get(mLastClickAddIndex - NON_STICKER_ITEM_COUNT).imageFileUrl = imagePath;
-        }
+
+        // RecyclerView
+        int insertPosition = mAllItems.size() - 1;
+        mAllItems.add(insertPosition, new StickerItem(imagePath, insertPosition));
+        mSelectStickerAdapter.setStickerItems(mAllItems);
+        mSelectStickerAdapter.notifyDataSetChanged();
+
+        // StickerPack
+        Sticker sticker = new Sticker(null, null);
+        sticker.imageFileUrl = imagePath;
+        mStickerPack.stickers.add(sticker);
+
+        // Update local
         WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
         WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
-        mSelectStickerAdapter.setCanPublish(isValidContent(), false);
+
+        updateCreateStickerPakcRecyclerViewSize();
     }
 
     private boolean isValidContent() {
@@ -503,10 +516,6 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     private interface SelectStickerAdapterCallback {
         void onClickPublish();
 
-        void onClickAdd(StickerItem item);
-
-        void onClickEdit(StickerItem item);
-
         void onClickDelete(StickerItem item);
     }
 
@@ -517,51 +526,32 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
                 return;
             }
 
-//            reportPublish();
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Publish);
             mPublishStickerPackTask = new WAStickerManager.PublishStickerPackTask(getActivity(), mStickerPack, mCreateStickerPackTaskCallback);
             mPublishStickerPackTask.execute();
-//            mProgressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onClickAdd(StickerItem stickerItem) {
-//            mLastClickAddIndex = stickerItem.index;
-//            Intent intent = new Intent(getActivity(), SelectAlbumStickersActivity.class);
-//            startActivityForResult(intent, REQUEST_CODE_SELECT_ALBUM_STICKERS);
-//            reportClickAdd();
-        }
-
-        @Override
-        public void onClickEdit(StickerItem item) {
-//            mLastClickAddIndex = item.index;
-//            ArrayList<String> urls = new ArrayList<>();
-//            urls.add(item.imageUrl);
-//            Intent intent = new Intent(getActivity(), EditImageActivity.class);
-//            intent.putStringArrayListExtra(EXTRA_SELECTED_LIST, urls);
-//            startActivityForResult(intent, REQUEST_CODE_EDIT_IMAGE);
         }
 
         @Override
         public void onClickDelete(StickerItem item) {
-            mAllItems.get(item.index).imageUrl = null;
-            mSelectStickerAdapter.notifyItemChanged(item.index);
+            mAllItems.remove(item.index);
+            mSelectStickerAdapter.notifyDataSetChanged();
+
+            updateCreateStickerPakcRecyclerViewSize();
 
             if (item.index == 0) {
                 mStickerPack.trayImageFile = null;
             } else {
-                mStickerPack.stickers.get(item.index - NON_STICKER_ITEM_COUNT).imageFileUrl = null;
+                mStickerPack.stickers.get(item.index).imageFileUrl = null;
             }
+
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
             WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
-            mSelectStickerAdapter.setCanPublish(isValidContent(), false);
         }
     };
 
     private WAStickerManager.CreateStickerPackTaskCallback mCreateStickerPackTaskCallback = new WAStickerManager.CreateStickerPackTaskCallback() {
         @Override
         public void onFinishCreated(StickerPack pack) {
-//            mProgressBar.setVisibility(View.GONE);
             addStickerPackToWhatsApp(pack.identifier, pack.name);
         }
     };
@@ -571,7 +561,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
      * @param identifier
      * @param stickerPackName
      */
-    protected void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
+    private void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
         if (getActivity() == null || !isAdded()) {
             return;
         }
@@ -588,18 +578,12 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     }
 
     static class SelectStickerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        static int TYPE_TRAY_IMAGE = 0x1000;
+        static int TYPE_MAKER_ENTRY = 0x1000;
         static int TYPE_STICKER = 0x1001;
-        static int TYPE_PUBLISH_BUTTON = 0x1002;
-
-        static int PUBLISH_BUTTON_INDEX = 1;
 
         ArrayList<StickerItem> stickerItems;
         SelectStickerAdapterCallback selectStickerAdapterCallback;
         Drawable defaultBackground;
-        String packName;
-        String authorName;
-        boolean canPublish;
 
         SelectStickerAdapter(Context context, ArrayList<StickerItem> items, SelectStickerAdapterCallback cb) {
             stickerItems = items;
@@ -611,29 +595,16 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             defaultBackground = drawable;
         }
 
-        public void setPackInfo(String name, String author) {
-            packName = name;
-            authorName = author;
-        }
 
         public void setStickerItems(ArrayList<StickerItem> items) {
             stickerItems = items;
         }
 
-        public void setCanPublish(boolean value, boolean forceUpdate) {
-            if (canPublish != value || forceUpdate) {
-                canPublish = value;
-                notifyItemChanged(PUBLISH_BUTTON_INDEX);
-            }
-        }
-
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            if (viewType == TYPE_TRAY_IMAGE) {
-                return new IconHolder(inflater.inflate(IconHolder.LAYOUT, parent, false), selectStickerAdapterCallback);
-            } else if (viewType == TYPE_PUBLISH_BUTTON) {
-                return new PublishHolder(inflater.inflate(PublishHolder.LAYOUT, parent, false), selectStickerAdapterCallback);
+            if (viewType == TYPE_MAKER_ENTRY) {
+                return new MakerEntryHolder(inflater.inflate(MakerEntryHolder.LAYOUT, parent, false), selectStickerAdapterCallback);
             } else {
                 return new StickerHolder(inflater.inflate(StickerHolder.LAYOUT, parent, false), selectStickerAdapterCallback);
             }
@@ -641,11 +612,9 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            if (getItemViewType(position) == TYPE_TRAY_IMAGE) {
-                ((IconHolder) holder).bind(stickerItems.get(position), packName, authorName);
-            } else if (getItemViewType(position) == TYPE_PUBLISH_BUTTON) {
-                ((PublishHolder) holder).bind(canPublish);
-            } else {
+            if (getItemViewType(position) == TYPE_MAKER_ENTRY) {
+                ((MakerEntryHolder) holder).bind();
+            }else {
                 ((StickerHolder) holder).bind(stickerItems.get(position), defaultBackground);
             }
         }
@@ -657,58 +626,27 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
         @Override
         public int getItemViewType(int position) {
-            if (position == 0) {
-                return TYPE_TRAY_IMAGE;
-            } else if (position == 1) {
-                return TYPE_PUBLISH_BUTTON;
+            if (position == getItemCount() - 1) {
+                return TYPE_MAKER_ENTRY;
             }
             return TYPE_STICKER;
         }
     }
 
-    static class IconHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        static final int LAYOUT = R.layout.item_view_icon_sticker_pack;
+    static class MakerEntryHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        static final int LAYOUT = R.layout.item_view_maker_entry;
 
-        StickerItem stickerItem;
+        View itemView;
         SelectStickerAdapterCallback callback;
-        AppCompatImageView imageView;
-        AppCompatImageView imageMask;
-        AppCompatTextView packName;
-        AppCompatTextView packAuthorName;
-        AppCompatImageView delete;
-        View defaultContent;
 
-        IconHolder(View itemView, SelectStickerAdapterCallback cb) {
+        MakerEntryHolder(View itemView, SelectStickerAdapterCallback cb) {
             super(itemView);
-            callback = cb;
-            imageView = itemView.findViewById(R.id.image);
-            imageMask = itemView.findViewById(R.id.image_mask);
-            packName = itemView.findViewById(R.id.pack_name);
-            packAuthorName = itemView.findViewById(R.id.pack_author);
-            delete = itemView.findViewById(R.id.delete);
-            defaultContent = itemView.findViewById(R.id.default_content);
+            this.itemView = itemView;
+            this.callback = cb;
         }
 
-        void bind(StickerItem item, String pack, String author) {
-            stickerItem = item;
-            packName.setText(pack);
-            packAuthorName.setText(author);
-            if (stickerItem.imageUrl != null) {
-                delete.setVisibility(View.VISIBLE);
-                delete.setOnClickListener(this);
-                imageView.setImageDrawable(null);
-                imageView.setOnClickListener(this);
-                Glide.with(imageView.getContext())
-                        .load(stickerItem.imageUrl)
-                        .placeholder(R.drawable.sc_ic_on_sticker)
-                        .dontTransform()
-                        .dontAnimate()
-                        .into(imageView);
-            } else {
-                delete.setVisibility(View.GONE);
-                imageView.setImageResource(R.drawable.sc_ic_cover_empty);
-                imageView.setOnClickListener(this);
-            }
+        void bind() {
+            itemView.setOnClickListener(this);
         }
 
         @Override
@@ -717,45 +655,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
                 return;
             }
 
-            if (v.getId() == R.id.image) {
-                if (stickerItem.imageUrl == null) {
-                    callback.onClickAdd(stickerItem);
-                } else {
-                    callback.onClickEdit(stickerItem);
-                }
-            } else if (v.getId() == R.id.delete) {
-                callback.onClickDelete(stickerItem);
-            }
-        }
-    }
-
-    static class PublishHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        static final int LAYOUT = R.layout.item_view_publish_sticker_pack;
-
-        SelectStickerAdapterCallback callback;
-        View publishButton;
-        boolean canPublish;
-
-        PublishHolder(View itemView, SelectStickerAdapterCallback cb) {
-            super(itemView);
-            callback = cb;
-
-            publishButton = itemView.findViewById(R.id.publish_button);
-        }
-
-        void bind(boolean canPublish) {
-            this.canPublish = canPublish;
-            publishButton.setBackgroundResource(canPublish ? R.drawable.publish_item_enable_round_corner_bg : R.drawable.publish_item_disable_round_corner_bg);
-            publishButton.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (callback == null || !canPublish) {
-                return;
-            }
-
-            callback.onClickPublish();
+            // TODO maker entry
         }
     }
 
@@ -764,25 +664,19 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
         StickerItem stickerItem;
         SelectStickerAdapterCallback callback;
-        View imageContent;
         AppCompatImageView imageView;
         AppCompatImageView delete;
-        View defaultContent;
 
         StickerHolder(View itemView, SelectStickerAdapterCallback cb) {
             super(itemView);
             callback = cb;
-            imageContent = itemView.findViewById(R.id.image_content);
             imageView = itemView.findViewById(R.id.image);
             delete = itemView.findViewById(R.id.delete);
-            defaultContent = itemView.findViewById(R.id.default_content);
         }
 
         void bind(StickerItem item, Drawable defaultBackground) {
             stickerItem = item;
             if (stickerItem.imageUrl != null) {
-                imageContent.setVisibility(View.VISIBLE);
-                defaultContent.setVisibility(View.GONE);
                 delete.setOnClickListener(this);
                 imageView.setImageDrawable(null);
                 imageView.setOnClickListener(this);
@@ -792,10 +686,6 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
                         .dontTransform()
                         .dontAnimate()
                         .into(imageView);
-            } else {
-                imageContent.setVisibility(View.GONE);
-                defaultContent.setVisibility(View.VISIBLE);
-                defaultContent.setOnClickListener(this);
             }
         }
 
@@ -805,13 +695,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
                 return;
             }
 
-            if (v.getId() == R.id.default_content || v.getId() == R.id.image) {
-                if (stickerItem.imageUrl == null) {
-                    callback.onClickAdd(stickerItem);
-                } else {
-                    callback.onClickEdit(stickerItem);
-                }
-            } else if (v.getId() == R.id.delete) {
+            if (v.getId() == R.id.delete) {
                 callback.onClickDelete(stickerItem);
             }
         }
@@ -857,8 +741,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
     private void onStoragePermissionGranted() {
         initStickerPack();
-        showDetailContent();
-        defaultTrendTagsLayout.setVisibility(View.VISIBLE);
+        showContents();
     }
 
     /**
@@ -888,17 +771,22 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         }
     }
 
-    private void showDetailContent() {
-        mAllItems.add(new StickerItem(mStickerPack.trayImageFile, 0));
-        mAllItems.add(new StickerItem(null, 1));
-        for (int i = 0; i < mStickerPack.stickers.size(); i++) {
-            StickerItem item = new StickerItem(mStickerPack.stickers.get(i).imageFileUrl, i + NON_STICKER_ITEM_COUNT);
-            mAllItems.add(item);
-        }
-        mSelectStickerAdapter.setPackInfo(mPackName, mAuthor);
+    private void showContents() {
+        // maker entry
+        mAllItems.add(new StickerItem("", -1));
         mSelectStickerAdapter.setStickerItems(mAllItems);
-        mSelectStickerAdapter.setCanPublish(isValidContent(), true);
         mSelectStickerAdapter.notifyDataSetChanged();
+
+        // defaultTrendTagsLayout
+        defaultTrendTagsLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void updateCreateStickerPakcRecyclerViewSize() {
+        if (mAllItems.size() > 4) {
+            bottomRecyclerView.getLayoutParams().height = getResources().getDimensionPixelOffset(R.dimen.create_pack_rv_height_2);
+        } else {
+            bottomRecyclerView.getLayoutParams().height = getResources().getDimensionPixelOffset(R.dimen.create_pack_rv_height_1);
+        }
     }
 
     private void setupDefaultTrendTags(LineBreakLayout.LineBreakLayoutListener listener) {
