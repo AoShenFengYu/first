@@ -2,6 +2,7 @@ package com.qisiemoji.apksticker.whatsapp.gifpick;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,11 @@ public class GifPickAdapter extends RecyclerView.Adapter<BaseGifPickViewHolder<G
     private LinkedList<GifPickItem> dataSet = new LinkedList<GifPickItem>();
     private Context context;
     private int clickItem = -1;
+    private Handler handler;
 
-    public GifPickAdapter(Context context) {
+    public GifPickAdapter(Context context,Handler handler) {
         this.context = context;
+        this.handler = handler;
     }
 
     public void setDataSet(LinkedList<GifPickItem> dataSet) {
@@ -56,6 +59,7 @@ public class GifPickAdapter extends RecyclerView.Adapter<BaseGifPickViewHolder<G
             public void onClick(View view) {
                 clickItem = position;
                 notifyDataSetChanged();
+                handler.sendEmptyMessage(GifPickActivity.MSG_PICK);
             }
         });
 

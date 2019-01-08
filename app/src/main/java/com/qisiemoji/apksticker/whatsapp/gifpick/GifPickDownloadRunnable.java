@@ -45,7 +45,7 @@ public class GifPickDownloadRunnable extends Thread {
             return;
         }
 
-        String url = "http://media2.giphy.com/media/"+stickerPack.getId()+"/100.gif";
+        String url = "http://media2.giphy.com/media/"+stickerPack.getId()+"/200.gif";
         File file = downloadFile(url);
 //        if(stickerPack.getUrl() == null){
 //            return;

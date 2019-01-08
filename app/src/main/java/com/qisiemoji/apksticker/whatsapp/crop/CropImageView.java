@@ -7,21 +7,23 @@ import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.qisiemoji.apksticker.whatsapp.gifpick.GifPickActivity;
+
 public class CropImageView extends ImageViewTouchBase {
 
-    Context mContext;
+    public Context mContext;
 
     enum Mode {
         None, Square, HandFree, HumanBody, ContourClip
     }
-    private Mode mMode = Mode.None;
+    public Mode mMode = Mode.None;
 
 //    private HandFreeCropOperation mHandFreeCropOperation;
-    private SquareCropOperation mSquareCropOperation;
+    public SquareCropOperation mSquareCropOperation;
 //    private ContourClipCropOperation mContourClipCropOperation;
-    private BaseCropOperation mCurrentCropOperation;
+    public BaseCropOperation mCurrentCropOperation;
 
-    private boolean mIgnoreOnDraw;
+    public boolean mIgnoreOnDraw;
 
     public CropImageView(Context context) {
         this(context, null);
@@ -82,9 +84,18 @@ public class CropImageView extends ImageViewTouchBase {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        CropImageActivity cropImageActivity = (CropImageActivity) mContext;
-        if (cropImageActivity.isSaving()) {
-            return false;
+        if(mContext instanceof CropImageActivity){
+            CropImageActivity cropImageActivity = (CropImageActivity) mContext;
+            if (cropImageActivity.isSaving()) {
+                return false;
+            }
+        }
+
+        if(mContext instanceof GifPickActivity){
+            GifPickActivity cropImageActivity = (GifPickActivity) mContext;
+            if (cropImageActivity.isSaving()) {
+                return false;
+            }
         }
 
         if (mCurrentCropOperation != null) {

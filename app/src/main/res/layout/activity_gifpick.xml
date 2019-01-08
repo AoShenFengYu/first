@@ -12,9 +12,18 @@
         android:scaleType="fitXY"
         android:background="#000000"
         android:id="@+id/gifpick_img"/>
+    
+    <com.qisiemoji.apksticker.whatsapp.crop.GifPickImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/gifpick_img"
+        android:scaleType="fitXY"
+        android:background="#000000"
+        android:id="@+id/gifpick_crop_img"/>
 
     <android.support.v7.widget.RecyclerView
-        android:layout_below="@id/gifpick_img"
+        android:layout_below="@id/gifpick_crop_img"
         android:id="@+id/gifpick_recycleview"
         android:layout_width="match_parent"
         android:paddingLeft="2dp"
@@ -37,4 +46,34 @@
         android:gravity="center"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"/>
+
+    <RelativeLayout
+        android:id="@+id/gifpick_func_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@id/gifpick_add">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_more"
+            android:layout_centerVertical="true"
+            android:id="@+id/gifpick_recovery"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_more"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/gifpick_recovery"
+            android:id="@+id/gifpick_add_text"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_more"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/gifpick_add_text"
+            android:id="@+id/gifpick_random_text"/>
+
+    </RelativeLayout>
 </RelativeLayout>

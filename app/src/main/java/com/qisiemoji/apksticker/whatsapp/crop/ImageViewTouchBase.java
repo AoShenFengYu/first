@@ -22,6 +22,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.ImageView;
@@ -195,7 +196,7 @@ abstract class ImageViewTouchBase extends ImageView {
     // Center as much as possible in one or both axis.  Centering is defined as follows:
     // * If the image is scaled down below the view's dimensions then center it.
     // * If the image is scaled larger than the view and is translated out of view then translate it back into view.
-    protected void center() {
+    public void center() {
         final Bitmap bitmap = bitmapDisplayed.getBitmap();
         if (bitmap == null) {
             return;
@@ -255,7 +256,7 @@ abstract class ImageViewTouchBase extends ImageView {
         return getValue(matrix, Matrix.MSCALE_X);
     }
 
-    protected float getScale() {
+    public float getScale() {
         return getScale(suppMatrix);
     }
 

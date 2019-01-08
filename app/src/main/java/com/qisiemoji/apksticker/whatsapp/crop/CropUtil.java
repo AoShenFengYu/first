@@ -29,6 +29,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.qisiemoji.apksticker.whatsapp.gifpick.GifPickActivity;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -39,7 +41,7 @@ import java.io.IOException;
 /*
  * Modified from original in AOSP.
  */
-class CropUtil {
+public class CropUtil {
 
     public static final String TAG = "android-crop";
     private static final String SCHEME_FILE = "file";
@@ -168,6 +170,15 @@ class CropUtil {
         new Thread(new BackgroundJob(activity, job, dialog, handler)).start();
     }
 
+    public static void startBackgroundJob(GifPickActivity activity,
+                                          String title, String message, Runnable job, Handler handler) {
+        // Make the progress dialog uncancelable, so that we can guarantee
+        // the thread will be done before the activity getting destroyed
+        ProgressDialog dialog = ProgressDialog.show(
+                activity, title, message, true, false);
+        new Thread(new BackgroundJob1(activity, job, dialog, handler)).start();
+    }
+
     private static class BackgroundJob extends MonitoredActivity.LifeCycleAdapter implements Runnable {
 
         private final MonitoredActivity activity;
@@ -187,6 +198,55 @@ class CropUtil {
             this.dialog = dialog;
             this.job = job;
             this.activity.addLifeCycleListener(this);
+            this.handler = handler;
+        }
+
+        public void run() {
+            try {
+                job.run();
+            } finally {
+                handler.post(cleanupRunner);
+            }
+        }
+
+        @Override
+        public void onActivityDestroyed(MonitoredActivity activity) {
+            // We get here only when the onDestroyed being called before
+            // the cleanupRunner. So, run it now and remove it from the queue
+            cleanupRunner.run();
+            handler.removeCallbacks(cleanupRunner);
+        }
+
+        @Override
+        public void onActivityStopped(MonitoredActivity activity) {
+            dialog.hide();
+        }
+
+        @Override
+        public void onActivityStarted(MonitoredActivity activity) {
+            dialog.show();
+        }
+    }
+
+    private static class BackgroundJob1 extends MonitoredActivity.LifeCycleAdapter implements Runnable {
+
+        private final GifPickActivity activity;
+        private final ProgressDialog dialog;
+        private final Runnable job;
+        private final Handler handler;
+        private final Runnable cleanupRunner = new Runnable() {
+            public void run() {
+//                activity.removeLifeCycleListener(BackgroundJob1.this);
+                if (dialog.getWindow() != null) dialog.dismiss();
+            }
+        };
+
+        public BackgroundJob1(GifPickActivity activity, Runnable job,
+                             ProgressDialog dialog, Handler handler) {
+            this.activity = activity;
+            this.dialog = dialog;
+            this.job = job;
+//            this.activity.addLifeCycleListener(this);
             this.handler = handler;
         }
 
