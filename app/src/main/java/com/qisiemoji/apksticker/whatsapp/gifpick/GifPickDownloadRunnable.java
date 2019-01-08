@@ -41,13 +41,16 @@ public class GifPickDownloadRunnable extends Thread {
 
     @Override
     public void run() {
-//        if(stickerPack == null){
-//            return;
-//        }
+        if(stickerPack == null){
+            return;
+        }
+
+        String url = "http://media2.giphy.com/media/"+stickerPack.getId()+"/100.gif";
+        File file = downloadFile(url);
 //        if(stickerPack.getUrl() == null){
 //            return;
 //        }
-        File file = downloadFile("https://media3.giphy.com/media/GCvktC0KFy9l6/200w.gif");
+//        File file = downloadFile("https://media3.giphy.com/media/GCvktC0KFy9l6/200w.gif");
 
         if(file == null){
             Message msg = handler.obtainMessage();

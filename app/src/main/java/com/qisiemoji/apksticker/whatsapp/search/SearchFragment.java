@@ -259,7 +259,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             currentTag = tag;
         }
         GPHApi client = new GPHApiClient("3otOKnzEUBswRmEYr6");
-        client.search("cats", MediaType.gif, null, null, null, null, new CompletionHandler<ListMediaResponse>() {
+        client.search(tag, MediaType.gif, null, null, null, null, new CompletionHandler<ListMediaResponse>() {
             @Override
             public void onComplete(ListMediaResponse result, Throwable e) {
                 if (result == null) {
