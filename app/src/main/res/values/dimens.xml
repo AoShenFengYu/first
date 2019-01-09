@@ -65,4 +65,5 @@
     <dimen name="create_pack_rv_height_2">160dp</dimen>
     <dimen name="create_pack_rv_item_height">80dp</dimen>
 
+    <dimen name="giphy_search_item_height">170dp</dimen>
 </resources>
