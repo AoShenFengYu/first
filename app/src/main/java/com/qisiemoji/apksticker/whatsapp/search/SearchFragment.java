@@ -175,7 +175,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
 
         bottomRecyclerView = rootView.findViewById(R.id.gifsearch_bottom_recyclerview);
-        mSelectStickerAdapter = new SelectStickerAdapter(getActivity(), mAllItems, mSelectStickerAdapterCallback);
+        mSelectStickerAdapter = new SelectStickerAdapter(getActivity(), mAllStickerPaths, mSelectStickerAdapterCallback);
         GridLayoutManager ms = new GridLayoutManager(getActivity(),4);
         bottomRecyclerView.setLayoutManager(ms);
         bottomRecyclerView.setAdapter(mSelectStickerAdapter);
@@ -436,8 +436,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     }
 
     public static final int ADD_PACK = 200;
-    private static final int NON_STICKER_ITEM_COUNT = 2;
-    private ArrayList<StickerItem> mAllItems = new ArrayList<>();
+    private ArrayList<String> mAllStickerPaths = new ArrayList<>();
     /***
      * 底部已添加sticker的view
      */
@@ -468,9 +467,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         }
 
         // RecyclerView
-        int insertPosition = mAllItems.size() - 1;
-        mAllItems.add(insertPosition, new StickerItem(imagePath, insertPosition));
-        mSelectStickerAdapter.setStickerItems(mAllItems);
+        mAllStickerPaths.add(0, imagePath);
+        mSelectStickerAdapter.setStickerPaths(mAllStickerPaths);
         mSelectStickerAdapter.notifyDataSetChanged();
 
         // StickerPack
@@ -502,21 +500,11 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         }
         return false;
     }
-
-    static class StickerItem {
-        private String imageUrl;
-        private int index;
-
-        StickerItem(String imageUrl, int index) {
-            this.imageUrl = imageUrl;
-            this.index = index;
-        }
-    }
-
+    
     private interface SelectStickerAdapterCallback {
         void onClickPublish();
 
-        void onClickDelete(StickerItem item);
+        void onClickDelete(String stickerPath, int index);
     }
 
     private SelectStickerAdapterCallback mSelectStickerAdapterCallback = new SelectStickerAdapterCallback() {
@@ -532,16 +520,16 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         }
 
         @Override
-        public void onClickDelete(StickerItem item) {
-            mAllItems.remove(item.index);
+        public void onClickDelete(String stickerPath, int index) {
+            mAllStickerPaths.remove(index);
             mSelectStickerAdapter.notifyDataSetChanged();
 
             updateCreateStickerPakcRecyclerViewSize();
 
-            if (item.index == 0) {
+            if (index == 0) {
                 mStickerPack.trayImageFile = null;
             } else {
-                mStickerPack.stickers.get(item.index).imageFileUrl = null;
+                mStickerPack.stickers.get(index).imageFileUrl = null;
             }
 
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
@@ -581,12 +569,12 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         static int TYPE_MAKER_ENTRY = 0x1000;
         static int TYPE_STICKER = 0x1001;
 
-        ArrayList<StickerItem> stickerItems;
+        ArrayList<String> stickerPaths;
         SelectStickerAdapterCallback selectStickerAdapterCallback;
         Drawable defaultBackground;
 
-        SelectStickerAdapter(Context context, ArrayList<StickerItem> items, SelectStickerAdapterCallback cb) {
-            stickerItems = items;
+        SelectStickerAdapter(Context context, ArrayList<String> items, SelectStickerAdapterCallback cb) {
+            stickerPaths = items;
             selectStickerAdapterCallback = cb;
 
             Drawable drawable = context.getResources().getDrawable(R.drawable.keyboard_sticker_default);
@@ -596,8 +584,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         }
 
 
-        public void setStickerItems(ArrayList<StickerItem> items) {
-            stickerItems = items;
+        public void setStickerPaths(ArrayList<String> items) {
+            stickerPaths = items;
         }
 
         @Override
@@ -615,13 +603,13 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             if (getItemViewType(position) == TYPE_MAKER_ENTRY) {
                 ((MakerEntryHolder) holder).bind();
             }else {
-                ((StickerHolder) holder).bind(stickerItems.get(position), defaultBackground);
+                ((StickerHolder) holder).bind(stickerPaths.get(position), position, defaultBackground);
             }
         }
 
         @Override
         public int getItemCount() {
-            return stickerItems.size();
+            return stickerPaths.size();
         }
 
         @Override
@@ -662,10 +650,11 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     static class StickerHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         static final int LAYOUT = R.layout.item_view_create_sticker_pack;
 
-        StickerItem stickerItem;
+        String stickerItem;
         SelectStickerAdapterCallback callback;
         AppCompatImageView imageView;
         AppCompatImageView delete;
+        int index;
 
         StickerHolder(View itemView, SelectStickerAdapterCallback cb) {
             super(itemView);
@@ -674,14 +663,15 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             delete = itemView.findViewById(R.id.delete);
         }
 
-        void bind(StickerItem item, Drawable defaultBackground) {
-            stickerItem = item;
-            if (stickerItem.imageUrl != null) {
+        void bind(String stickerPath, int position, Drawable defaultBackground) {
+            stickerItem = stickerPath;
+            index = position;
+            if (stickerPath != null) {
                 delete.setOnClickListener(this);
                 imageView.setImageDrawable(null);
                 imageView.setOnClickListener(this);
                 Glide.with(imageView.getContext())
-                        .load(stickerItem.imageUrl)
+                        .load(stickerPath)
                         .placeholder(defaultBackground)
                         .dontTransform()
                         .dontAnimate()
@@ -696,7 +686,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             }
 
             if (v.getId() == R.id.delete) {
-                callback.onClickDelete(stickerItem);
+                callback.onClickDelete(stickerItem, index);
             }
         }
     }
@@ -773,8 +763,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
     private void showContents() {
         // maker entry
-        mAllItems.add(new StickerItem("", -1));
-        mSelectStickerAdapter.setStickerItems(mAllItems);
+        mAllStickerPaths.add("maker_entry");
+        mSelectStickerAdapter.setStickerPaths(mAllStickerPaths);
         mSelectStickerAdapter.notifyDataSetChanged();
 
         // defaultTrendTagsLayout
@@ -782,7 +772,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     }
 
     private void updateCreateStickerPakcRecyclerViewSize() {
-        if (mAllItems.size() > 4) {
+        if (mAllStickerPaths.size() > 4) {
             bottomRecyclerView.getLayoutParams().height = getResources().getDimensionPixelOffset(R.dimen.create_pack_rv_height_2);
         } else {
             bottomRecyclerView.getLayoutParams().height = getResources().getDimensionPixelOffset(R.dimen.create_pack_rv_height_1);

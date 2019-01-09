@@ -18,9 +18,7 @@ public class CropImageView extends ImageViewTouchBase {
     }
     public Mode mMode = Mode.None;
 
-//    private HandFreeCropOperation mHandFreeCropOperation;
     public SquareCropOperation mSquareCropOperation;
-//    private ContourClipCropOperation mContourClipCropOperation;
     public BaseCropOperation mCurrentCropOperation;
 
     public boolean mIgnoreOnDraw;
@@ -36,9 +34,7 @@ public class CropImageView extends ImageViewTouchBase {
     public CropImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-//        mHandFreeCropOperation = new HandFreeCropOperation(getContext(), this);
         mSquareCropOperation = new SquareCropOperation(getContext(), this);
-//        mContourClipCropOperation = new ContourClipCropOperation(getContext(), this);
         setMode(Mode.Square);
     }
 
@@ -216,10 +212,6 @@ public class CropImageView extends ImageViewTouchBase {
 //        } else
         if (mCurrentCropOperation instanceof SquareCropOperation) {
             return "1:1";
-//        } else if (mCurrentCropOperation instanceof HumanBodyCropOperation) {
-//            return "human_body";
-//        } else if (mCurrentCropOperation instanceof ContourClipCropOperation) {
-//            return "contour_clip";
         } else {
             return null;
         }

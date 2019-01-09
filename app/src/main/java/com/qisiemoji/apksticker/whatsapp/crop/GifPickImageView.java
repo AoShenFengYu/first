@@ -18,10 +18,5 @@ public class GifPickImageView extends CropImageView {
 
     public GifPickImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
-//        mHandFreeCropOperation = new HandFreeCropOperation(getContext(), this);
-        mSquareCropOperation = new SquareCropOperation(getContext(), this);
-//        mContourClipCropOperation = new ContourClipCropOperation(getContext(), this);
-        setMode(Mode.Square);
     }
 }
