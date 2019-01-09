@@ -24,7 +24,6 @@ import com.giphy.sdk.core.models.Media;
 import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.recyclerview.SpacesItemDecoration;
 import com.qisiemoji.apksticker.util.GifDecoder;
-import com.qisiemoji.apksticker.whatsapp.crop.CropImageActivity;
 import com.qisiemoji.apksticker.whatsapp.crop.CropUtil;
 import com.qisiemoji.apksticker.whatsapp.crop.EditableCropOperation;
 import com.qisiemoji.apksticker.whatsapp.crop.GifPickImageView;
@@ -116,8 +115,10 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             Toast.makeText(this, "Sorry,pick one please.", Toast.LENGTH_LONG).show();
             return;
         }
+
+        gifPickImg.onPreGetCroppedBitmap();
         WAStickerManager.SaveTempImageFileTask task = new WAStickerManager
-                .SaveTempImageFileTask(GifPickActivity.this, adapter.obtainBitmap()
+                .SaveTempImageFileTask(GifPickActivity.this, gifPickImg.getCroppedBitmap()
                 , new WAStickerManager.SaveTempImageFileCallback() {
             @Override
             public void onFinishSaved(String path) {
@@ -203,7 +204,10 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             }
             for (int i = 0; i < gd.getFrameCount(); i++) {
                 if (i % mod == 0) {
-                    list.add(new GifPickItem((gd.getFrame(i))));
+                    // FIXME for crop view, we sync the bitmap size as 1:1
+                    Bitmap bitmap = Bitmap.createScaledBitmap(gd.getFrame(i), 600, 600, false);
+                    list.add(new GifPickItem((bitmap)));
+//                    list.add(new GifPickItem((gd.getFrame(i))));
                 }
             }
             adapter.setDataSet(list);
@@ -228,13 +232,6 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             default:
                 break;
         }
-    }
-
-    private void loadInputByUri(Bitmap bitmap) {
-        if (bitmap == null) {
-            return;
-        }
-        mNormalRotateBitmap = new RotateBitmap(bitmap, mExifRotation);
     }
 
     private int getMaxImageSize() {
@@ -270,9 +267,14 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
         if (bitmap == null) {
             return;
         }
-        loadInputByUri(bitmap);
-        gifPickImg.setInputInfos(1, 1, mExifRotation);
+
+        img.setVisibility(View.INVISIBLE);
+        gifPickImg.setVisibility(View.VISIBLE);
+
+        mNormalRotateBitmap = new RotateBitmap(bitmap, mExifRotation);
+        gifPickImg.setInputInfos(0, 0, mExifRotation);
         gifPickImg.setImageRotateBitmapResetBase(mNormalRotateBitmap, true);
+
         gifPickImg.setEditableCropOperationListener(this);
         CropUtil.startBackgroundJob(this, null, getResources().getString(R.string.crop__wait),
                 new Runnable() {
@@ -330,6 +332,7 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             int y = (height - cropHeight) / 2;
             RectF cropRect = new RectF(x, y, x + cropWidth, y + cropHeight);
             hv.setup(gifPickImg.getUnrotatedMatrix(), imageRect, cropRect, mAspectX != 0 && mAspectY != 0);
+
             gifPickImg.addSquareHighlistView(hv);
         }
 
