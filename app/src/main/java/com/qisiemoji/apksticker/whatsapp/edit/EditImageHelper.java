@@ -15,15 +15,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
     private ArrayList<BaseToolOperation> mToolOperations = new ArrayList<>();
     private ArrayList<BaseToolOperation> mTmpOperations = new ArrayList<>();
 
-    public interface EditImageHelperListener {
-        void onPreNextStateUpdated(boolean canPre, boolean canNext);
-        void onClickExistTextToolOperation();
-        void onClickTextToolOperation(int color, boolean borderEnable);
-        void onNewCurrentToolNull();
-        void onTextToolOperationBorderUpdated(boolean enable);
-    }
-    private EditImageHelperListener mEditImageHelperListener;
-
     public enum ToolType {
         Draw, Text
     }
@@ -32,10 +23,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
     public EditImageHelper(Context context, ViewGroup viewGroup) {
         mContext = context;
         mViewGroup = viewGroup;
-    }
-
-    public void setEditImageHelperListener(EditImageHelperListener listener) {
-        mEditImageHelperListener = listener;
     }
 
     public void onTouchDown(float x, float y) {
@@ -53,9 +40,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
         for (int i = mToolOperations.size() - 1; i >= 0 ; i--) {
             if (mToolOperations.get(i).handleTouchEvent(x, y)) {
                 alreadyExistOperation = mToolOperations.get(i);
-                if (mEditImageHelperListener != null) {
-                    mEditImageHelperListener.onClickExistTextToolOperation();
-                }
                 break;
             }
         }
@@ -87,13 +71,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
     }
 
     public void onTouchUp(float x, float y) {
-        if (mCurrentToolOperation instanceof DrawToolOperation) {
-            mTmpOperations.clear();
-        }
-
-        if (mEditImageHelperListener != null) {
-            mEditImageHelperListener.onPreNextStateUpdated(canPre(), canNext());
-        }
         if (mCurrentToolOperation != null) {
             mCurrentToolOperation.onTouchUp(x, y);
         }
@@ -122,23 +99,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
     @Override
     public void onTextToolOperationDelete(TextToolOperation textToolOperation) {
         mToolOperations.remove(textToolOperation);
-        if (mEditImageHelperListener != null) {
-            mEditImageHelperListener.onPreNextStateUpdated(canPre(), canNext());
-        }
-    }
-
-    @Override
-    public void onTextToolOperationClick(TextToolOperation textToolOperation, boolean borderEnable) {
-        if (mEditImageHelperListener != null) {
-            mEditImageHelperListener.onClickTextToolOperation(textToolOperation.getTextColor(), borderEnable);
-        }
-    }
-
-    @Override
-    public void onTextToolOperationBorderUpdated(boolean enable) {
-        if (mEditImageHelperListener != null) {
-            mEditImageHelperListener.onTextToolOperationBorderUpdated(enable);
-        }
     }
 
     public void setTextToolColor(int color) {
@@ -167,9 +127,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
         }
 
         mTmpOperations.clear();
-        if (mEditImageHelperListener != null) {
-            mEditImageHelperListener.onPreNextStateUpdated(canPre(), canNext());
-        }
     }
 
     public void enableTextToolTextBorder(boolean enable) {
@@ -182,26 +139,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
         if (mCurrentToolOperation instanceof TextToolOperation) {
             ((TextToolOperation)mCurrentToolOperation).setText(text);
         }
-    }
-
-    public int getDrawCount() {
-        int count = 0;
-        for (BaseToolOperation operation : mToolOperations) {
-            if (operation instanceof DrawToolOperation) {
-                count = count + 1;
-            }
-        }
-        return count;
-    }
-
-    public int getTextCount() {
-        int count = 0;
-        for (BaseToolOperation operation : mToolOperations) {
-            if (operation instanceof TextToolOperation) {
-                count = count + 1;
-            }
-        }
-        return count;
     }
 
     private boolean isInitialStateInTextOperation() {

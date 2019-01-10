@@ -35,11 +35,9 @@ import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.recyclerview.SpacesItemDecoration;
 import com.qisiemoji.apksticker.util.GifDecoder;
 import com.qisiemoji.apksticker.whatsapp.crop.CropUtil;
-import com.qisiemoji.apksticker.whatsapp.crop.EditableCropOperation;
 import com.qisiemoji.apksticker.whatsapp.crop.GifPickImageView;
 import com.qisiemoji.apksticker.whatsapp.crop.HighlightView;
 import com.qisiemoji.apksticker.whatsapp.crop.RotateBitmap;
-import com.qisiemoji.apksticker.whatsapp.edit.EditImageHelper;
 import com.qisiemoji.apksticker.whatsapp.edit.EditImageLayout;
 import com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView;
 import com.qisiemoji.apksticker.whatsapp.manager.EditImageManager;
@@ -56,7 +54,7 @@ import java.util.concurrent.CountDownLatch;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_SELECTED_LIST;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.RESULT_CODE_FINISH_EDIT_IMAGE;
 
-public class GifPickActivity extends AppCompatActivity implements View.OnClickListener, EditableCropOperation.EditableCropOperationListener {
+public class GifPickActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int GIF_PICK_SPAN_COUNT = 3;
 
     public static final int USER_DOWNLOAD_SUCCESS = 100;
@@ -180,13 +178,10 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
 
         String url = "http://media2.giphy.com/media/" + media.getId() + "/200.gif";
         Glide.with(this).load(url).into(img);
-//        Glide.with(this).load("https://media3.giphy.com/media/GCvktC0KFy9l6/200w.gif").into(img);
-
     }
 
     private void save(){
         mIsSaving = true;
-//        setProgressBarVisibility(View.VISIBLE);
         mGetCropBitmapTask = new GetCropBitmapTask(new GetCropBitmapTaskCallback() {
             @Override
             public void onPreGetCroppedBitmap() {
@@ -201,10 +196,6 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onFinishCropped(Bitmap bitmap) {
                 EditImageManager.getInstance().setCroppedImage(bitmap);
-//                        Intent intent = new Intent(CropImageActivity.this, EditImageActivity.class);
-//                        startActivityForResult(intent, REQUEST_CODE_EDIT_IMAGE);
-//                        mIsSaving = false;
-//                        setProgressBarVisibility(View.INVISIBLE);
             }
         });
         mGetCropBitmapTask.execute();
@@ -332,31 +323,6 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
         editImageContainer = findViewById(R.id.edit_image_container);
         editImageLayout = findViewById(R.id.edit_image);
         editImageLayout.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        editImageLayout.setEditImageHelperListener(new EditImageHelper.EditImageHelperListener() {
-            @Override
-            public void onPreNextStateUpdated(boolean canPre, boolean canNext) {
-            }
-
-            @Override
-            public void onClickExistTextToolOperation() {
-
-            }
-
-            @Override
-            public void onClickTextToolOperation(int color, boolean borderEnable) {
-
-            }
-
-            @Override
-            public void onNewCurrentToolNull() {
-
-            }
-
-            @Override
-            public void onTextToolOperationBorderUpdated(boolean enable) {
-
-            }
-        });
 
         enterText = findViewById(R.id.enter_text);
         enterText.addTextChangedListener(new TextWatcher() {
@@ -431,7 +397,6 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
         gifPickImg.setInputInfos(0, 0, mExifRotation);
         gifPickImg.setImageRotateBitmapResetBase(mNormalRotateBitmap, true);
 
-        gifPickImg.setEditableCropOperationListener(this);
         CropUtil.startBackgroundJob(this, null, getResources().getString(R.string.crop__wait),
                 new Runnable() {
                     @Override
@@ -505,21 +470,6 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
                 }
             });
         }
-    }
-
-    @Override
-    public void onEditableOperationStartDoCrop() {
-
-    }
-
-    @Override
-    public void onEditableOperationFinishDoCrop() {
-
-    }
-
-    @Override
-    public void onUpdateActionBackNextStates(boolean canBack, boolean canNext) {
-
     }
 
     private interface GetCropBitmapTaskCallback {
