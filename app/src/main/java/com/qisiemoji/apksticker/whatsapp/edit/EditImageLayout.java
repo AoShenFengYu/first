@@ -28,20 +28,6 @@ public class EditImageLayout extends FrameLayout {
         mHelper = new EditImageHelper(getContext(), this);
     }
 
-//    @Override
-//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//
-//        int width = getMeasuredWidth();
-//        setMeasuredDimension(width, width);
-//    }
-//
-//    @Override
-//    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//        super.onLayout(changed, left, top, right, bottom);
-//        generateDestBitmap();
-//    }
-
     public void setEditImageHelperListener(EditImageHelper.EditImageHelperListener listener) {
         mHelper.setEditImageHelperListener(listener);
     }
@@ -91,19 +77,7 @@ public class EditImageLayout extends FrameLayout {
         mHelper.createTextToolText();
     }
 
-    public void enableTextToolTextBorder(boolean enable) {
-        mHelper.enableTextToolTextBorder(enable);
-    }
-
     public void setTextToolText(String text) {
         mHelper.setTextToolText(text);
-    }
-
-    public int getDrawCount() {
-        return mHelper.getDrawCount();
-    }
-
-    public int getTextCount() {
-        return mHelper.getTextCount();
     }
 }
