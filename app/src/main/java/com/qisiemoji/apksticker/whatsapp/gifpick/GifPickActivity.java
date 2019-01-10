@@ -87,6 +87,7 @@ public class GifPickActivity extends AppCompatActivity{
                 finish();
             }
         });
+                
         task.execute();
     }
 
