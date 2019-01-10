@@ -8,14 +8,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.text.Editable;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -64,7 +60,6 @@ public class TextToolOperation extends BaseToolOperation {
     private static final int ROTATE_MODE = 4;//旋转模式
     private static final int DELETE_MODE = 5;//删除模式
     private LinearLayout mInvisibleContainer;
-    private EditText mEditText;//输入控件
     public int mLayoutX = 0;
     public int mLayoutY = 0;
     public float mRotateAngle = 0;
@@ -116,7 +111,7 @@ public class TextToolOperation extends BaseToolOperation {
         mBorderPaint.setAntiAlias(true);
         mBorderPaint.setTextAlign(Paint.Align.LEFT);
 
-        mHint = context.getResources().getString(R.string.default_text_tool_hint);
+        mHint = " ";
         mHintPaint.setColor(Color.WHITE);
         mHintPaint.setTextAlign(Paint.Align.CENTER);
         mHintPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.default_text_tool_text_size));
@@ -163,17 +158,10 @@ public class TextToolOperation extends BaseToolOperation {
             mTextToolOperationCallback.onTextToolOperationClick(this, mEnableTextBorder);
         }
 
-        if (mCurrentMode != DELETE_MODE && mMoveX < 20 && mMoveY < 20 && mHelpBoxRect.contains(x, y)) {
-            mEditText.requestFocus();
-            showKeyboard();
-        }
         if (mCurrentMode == DELETE_MODE) {// 删除选定贴图
             if (mTextToolOperationCallback != null) {
                 mTextToolOperationCallback.onTextToolOperationDelete(this);
             }
-            clearTextContent();
-            removeEditTextView();
-            hideKeyboard();
             mViewGroup.invalidate();
         } else if (mCurrentMode == MOVE_MODE) {
             moveEditTextView(x, y);
@@ -227,31 +215,12 @@ public class TextToolOperation extends BaseToolOperation {
 
         mInvisibleContainer = new LinearLayout(mContext);
         mInvisibleContainer.setVisibility(View.INVISIBLE);
-        mEditText = new EditText(mContext);
-        mEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String text = s.toString().trim();
-                setText(text);
-            }
-        });
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         int shift = mContext.getResources().getDimensionPixelOffset(R.dimen.edit_image_text_shift);
         params.topMargin = (y - shift) < 0 ? 0 : (int) (y - shift);
         params.leftMargin = (x - shift) < 0 ? 0 : (int) (x - shift);
-        mInvisibleContainer.addView(mEditText);
         mViewGroup.addView(mInvisibleContainer, params);
-        mEditText.requestFocus();
     }
 
     private void moveEditTextView(float x, float y) {
@@ -264,43 +233,11 @@ public class TextToolOperation extends BaseToolOperation {
         params.topMargin = (y - shift) < 0 ? 0 : (int) (y - shift);
         params.leftMargin = (x - shift) < 0 ? 0 : (int) (x - shift);
         mViewGroup.addView(mInvisibleContainer, params);
-        mEditText.requestFocus();
-    }
-
-    private void removeEditTextView() {
-        if (mViewGroup != null && mEditText != null) {
-            mViewGroup.removeView(mEditText);
-        }
     }
 
     @Override
     public void onDraw(Canvas canvas, boolean finalDest) {
-        if (mEditText == null) {
-            return;
-        }
         drawContent(canvas, finalDest);
-    }
-
-    private void showKeyboard() {
-        hideKeyboard();
-        // show keyboard
-        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-    }
-
-    private void hideKeyboard() {
-        if (mEditText == null) {
-            return;
-        }
-        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
-    }
-
-    private void clearTextContent() {
-        if (mEditText != null) {
-            mEditText.setText(null);
-        }
     }
 
     private void updateRotateAndScale(final float dx, final float dy) {
@@ -350,6 +287,7 @@ public class TextToolOperation extends BaseToolOperation {
     }
 
     private void drawContent(Canvas canvas, boolean finalDest) {
+
         drawText(canvas, finalDest);
 
         if (!mIsSuperMode || finalDest || !mHasFocus) {
@@ -450,7 +388,7 @@ public class TextToolOperation extends BaseToolOperation {
         return list.size() == 0;
     }
 
-    private void setText(String text) {
+    public void setText(String text) {
         mIsShowHelpBox = true;
         this.mText = text;
         mViewGroup.invalidate();
@@ -470,27 +408,24 @@ public class TextToolOperation extends BaseToolOperation {
 
     @Override
     public void clear() {
-        removeEditTextView();
-        hideKeyboard();
     }
 
     public int getTextColor() {
         return mTextColor;
     }
 
-    public void createText(boolean showKeyboard) {
+    public void createText() {
         mHasFocus = true;
         mCurrentMode = IDLE_MODE;
         mLayoutX = (mViewGroup.getWidth() - mContext.getResources().getDimensionPixelOffset(R.dimen.default_text_tool_width)) / 2 + PADDING;
         mLayoutY = (mViewGroup.getHeight() - mContext.getResources().getDimensionPixelOffset(R.dimen.default_text_tool_height)) / 2 + PADDING;
         addEditTextView(mLayoutX, mLayoutY);
-        if (showKeyboard) {
-            showKeyboard();
-        }
 
         if (mTextToolOperationCallback != null) {
             mTextToolOperationCallback.onTextToolOperationBorderUpdated(mEnableTextBorder);
         }
+
+        mViewGroup.invalidate();
     }
 
     public void enableTextBorder(boolean enable) {

@@ -75,22 +75,6 @@ public class EditImageLayout extends FrameLayout {
         return true;
     }
 
-    public void finishOperation() {
-        mHelper.finishOperation();
-    }
-
-    public void setCurrentToolType(EditImageHelper.ToolType toolType) {
-        mHelper.setCurrentToolType(toolType);
-    }
-
-    public void preOperation() {
-        mHelper.preOperation();
-    }
-
-    public void nextOperation() {
-        mHelper.nextOperation();
-    }
-
     public Bitmap getOperationBitmap() {
         int imageSize = getResources().getDimensionPixelSize(R.dimen.edit_image_size);
         Bitmap operationBitmap = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888);
@@ -103,12 +87,16 @@ public class EditImageLayout extends FrameLayout {
         mHelper.setTextToolColor(color);
     }
 
-    public void createTextToolText(boolean showKeyboard) {
-        mHelper.createTextToolText(showKeyboard);
+    public void createTextToolText() {
+        mHelper.createTextToolText();
     }
 
     public void enableTextToolTextBorder(boolean enable) {
         mHelper.enableTextToolTextBorder(enable);
+    }
+
+    public void setTextToolText(String text) {
+        mHelper.setTextToolText(text);
     }
 
     public int getDrawCount() {

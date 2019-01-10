@@ -7,24 +7,24 @@ import android.util.AttributeSet;
 import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.util.DensityUtil;
 
-public class RoundCornerColorImageView extends android.support.v7.widget.AppCompatImageView {
+public class CircleColorImageView extends android.support.v7.widget.AppCompatImageView {
 
     private int mColor;
     private int mMeaningSize;
 
-    public RoundCornerColorImageView(Context context) {
+    public CircleColorImageView(Context context) {
         this(context, null);
     }
 
-    public RoundCornerColorImageView(Context context, AttributeSet attrs) {
+    public CircleColorImageView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public RoundCornerColorImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CircleColorImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         setImageDrawable(getResources().getDrawable(R.drawable.round_corner_with_border));
-        disableBorder();
+//        disableBorder();
     }
 
     public void setColor(int color) {
