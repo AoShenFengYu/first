@@ -3,7 +3,6 @@ package com.qisiemoji.apksticker.whatsapp.fragment;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -23,16 +22,16 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
 
     private AppCompatEditText mStickerPackName;
     private AppCompatEditText mAuthorName;
-    private AppCompatTextView mStickerPackCount;
-    private AppCompatTextView mAuthorCount;
     private View mAuthorInfo;
     private View mExpend;
     private View mClearAuthor;
 
     public interface CreateStickerPackDialogFragmentCallBack {
         void onClickCreateButton(String stickerPackName, String author);
+
         void onClickCancelButton();
     }
+
     private CreateStickerPackDialogFragmentCallBack mCreateStickerPackDialogFragmentCallBack;
 
     public void setCallBack(CreateStickerPackDialogFragmentCallBack callBack) {
@@ -84,11 +83,6 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
 
     @Override
     protected void setupViews(View view) {
-        mStickerPackCount = view.findViewById(R.id.stickerpack_count);
-        mAuthorCount = view.findViewById(R.id.author_count);
-        updateTextCount(mStickerPackCount, 0, 30);
-        updateTextCount(mAuthorCount, 0, 30);
-
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
@@ -101,10 +95,10 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
         };
         mStickerPackName = view.findViewById(R.id.stickerpack);
         mStickerPackName.setFilters(new InputFilter[]{filter});
-        mStickerPackName.addTextChangedListener(new UploadTextWatcher(mStickerPackName, mStickerPackCount,30));
+        mStickerPackName.addTextChangedListener(new UploadTextWatcher());
         mAuthorName = view.findViewById(R.id.author);
         mAuthorName.setFilters(new InputFilter[]{filter});
-        mAuthorName.addTextChangedListener(new UploadTextWatcher(mAuthorName, mAuthorCount,30));
+        mAuthorName.addTextChangedListener(new UploadTextWatcher());
         mExpend = view.findViewById(R.id.expend);
         mExpend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,19 +130,7 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
 
     private class UploadTextWatcher implements TextWatcher {
 
-        AppCompatEditText editText;
-        AppCompatTextView textView;
-        int max;
-
-        CharSequence temp;
-        int selectionStart;
-        int selectionEnd;
-        int count;
-
-        UploadTextWatcher(AppCompatEditText et, AppCompatTextView tv, int max) {
-            this.editText = et;
-            this.textView = tv;
-            this.max = max;
+        UploadTextWatcher() {
         }
 
         @Override
@@ -157,44 +139,12 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            this.temp = s;
-            this.count = count;
         }
 
         @Override
         public void afterTextChanged(Editable s) {
-            selectionStart = editText.getSelectionStart();
-            selectionEnd = editText.getSelectionEnd();
-
-            if (temp.length() > max) {
-                int tempSelection;
-                if (selectionStart > max || selectionEnd > max) {
-                    tempSelection = max;
-                } else {
-                    int exceedCount = temp.length() - max;
-                    int availableCount = count - exceedCount;
-                    tempSelection = selectionEnd - count + availableCount;
-                }
-
-                if (selectionStart - 1 < 0) {
-                    // 如果 selectionStart - 1 = -1，則至少把第一個刪除掉
-                    s.delete(0, selectionEnd == 0 ? 1 : selectionEnd);
-
-                } else {
-                    s.delete(selectionStart - 1, selectionEnd);
-                }
-
-                editText.setText(s);
-                editText.setSelection(tempSelection);
-            }
-
-            updateTextCount(textView, s.length(), max);
             updateCreateButtonState();
         }
-    }
-
-    private void updateTextCount(AppCompatTextView textView, int num, int max) {
-        textView.setText("(" + num + "/" + max + ")");
     }
 
     private void updateCreateButtonState() {

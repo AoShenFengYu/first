@@ -20,6 +20,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,9 +37,10 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
 
     public static final int RESULT_CODE_FINISH_SELECT = 111;
     public static final String EXTRA_SELECTED_LIST = "selected_list";
+    public static final String EXTRA_SELECTED_ITEM_MIN = "selected_item_min";
 
-    private static final int SELECT_ITEM_MIN = 4; // FIXME current include icon
-    private static final int SELECT_ITEM_MAX = 31; // FIXME current include icon
+    private static final int SELECTED_ITEM_MIN = 4; // FIXME current include icon
+    private static final int SELECTED_ITEM_MAX = 31; // FIXME current include icon
 
     private static final int PERMISSION_STORAGE_REQUEST_CODE = 100;
 
@@ -49,6 +51,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
 
     private ArrayList<StickerItem> mAllItems = new ArrayList<>();
     private ArrayList<String> mSelectedImageUrls = new ArrayList<>();
+    private int mSelectedIteMin;
 
     private interface ScanStickersCallback {
         void onFinishScan(ArrayList<StickerItem> items);
@@ -65,7 +68,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
                 stickerItem.check = false;
                 mSelectedImageUrls.remove(stickerItem.imageUrl);
                 mSelectStickerAdapter.notifyItemChanged(stickerItem.index);
-            } else if (mSelectedImageUrls.size() < SELECT_ITEM_MAX) {
+            } else if (mSelectedImageUrls.size() < SELECTED_ITEM_MAX) {
                 stickerItem.check = true;
                 mSelectedImageUrls.add(stickerItem.imageUrl);
                 mSelectStickerAdapter.notifyItemChanged(stickerItem.index);
@@ -79,13 +82,15 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_album_sticker);
 
+        mSelectedIteMin = getIntent().getExtras().getInt(EXTRA_SELECTED_ITEM_MIN, SELECTED_ITEM_MIN);
+
         GridLayoutManager manager = new GridLayoutManager(this, 4);
         mSelectStickerAdapter = new SelectStickerAdapter(this, mAllItems, mSelectStickerItemCallback);
         mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(manager);
         RecyclerViewSpacesItemDecoration itemDecoration =
-                new RecyclerViewSpacesItemDecoration(DensityUtil.dp2px(this,4), 0, 0, DensityUtil.dp2px(this,4));
-        itemDecoration.handleExtraTop(DensityUtil.dp2px(this,12), 4);
+                new RecyclerViewSpacesItemDecoration(DensityUtil.dp2px(this, 4), 0, 0, DensityUtil.dp2px(this, 4));
+        itemDecoration.handleExtraTop(DensityUtil.dp2px(this, 12), 4);
         mRecyclerView.addItemDecoration(itemDecoration);
         mRecyclerView.setAdapter(mSelectStickerAdapter);
 
@@ -117,7 +122,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
     }
 
     private void updateDoneButton() {
-        if (mSelectedImageUrls.size() < SELECT_ITEM_MIN) {
+        if (mSelectedImageUrls.size() < mSelectedIteMin) {
             mDone.setClickable(false);
             mDone.setEnabled(false);
             mDone.setTextColor(Color.parseColor("#93D6D3"));
@@ -126,7 +131,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
             mDone.setEnabled(true);
             mDone.setTextColor(Color.parseColor("#0DB4AD"));
         }
-        mDone.setText( "Done(" + mSelectedImageUrls.size() + "/" + SELECT_ITEM_MAX + ")");
+        mDone.setText("Done(" + mSelectedImageUrls.size() + "/" + SELECTED_ITEM_MAX + ")");
     }
 
     static class StickerItem {
@@ -134,7 +139,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
         private boolean check;
         private int index;
 
-        StickerItem( String imageUrl, boolean check, int index) {
+        StickerItem(String imageUrl, boolean check, int index) {
             this.imageUrl = imageUrl;
             this.check = check;
             this.index = index;
@@ -172,7 +177,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
     }
 
 
-    static class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    static class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         static final int LAYOUT = R.layout.item_view_select_stickers;
 
         SelectStickerItemCallback callback;
@@ -256,7 +261,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
             ArrayList<String> listOfAllImages = new ArrayList<String>();
             String absolutePathOfImage;
             uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            String[] projection = { MediaStore.MediaColumns.DATA };
+            String[] projection = {MediaStore.MediaColumns.DATA};
             String orderBy = MediaStore.Images.ImageColumns.DATE_ADDED + " DESC";
 
             cursor = context.getContentResolver().query(uri, projection, null,
@@ -270,7 +275,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
             }
 
             ArrayList<StickerItem> items = new ArrayList<>();
-            for (int i = 0 ; i < listOfAllImages.size() ; i++) {
+            for (int i = 0; i < listOfAllImages.size(); i++) {
                 String s = listOfAllImages.get(i);
                 boolean checked = (selectedImageUrls != null) && selectedImageUrls.contains(s);
                 StickerItem item = new StickerItem(s, checked, i);

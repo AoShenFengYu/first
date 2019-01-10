@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.qisiemoji.apksticker">
 
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -28,51 +28,59 @@
     <uses-permission android:name="com.android.launcher.permission.WRITE_SETTINGS" />
 
     <application
+        android:name=".StickerApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="${LABEL}"
         android:supportsRtl="true"
-        android:name=".StickerApplication"
         android:theme="@style/AppTheme">
 
         <meta-data
             android:name="STICKER_NAME"
             android:value="${STICKER_NAME}" />
-        <activity android:name=".whatsapp.EntryActivity">
-        </activity>
+
+        <activity android:name=".whatsapp.EntryActivity"></activity>
+
         <activity
             android:name=".activities.MainActivity"
             android:excludeFromRecents="true"
-            android:screenOrientation="portrait"
             android:exported="true"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="stateUnspecified|adjustResize">
-        </activity>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnspecified|adjustResize"></activity>
 
-        <activity
-            android:name=".whatsapp.StickerPackListActivity">
+        <activity android:name=".whatsapp.StickerPackListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".whatsapp.search.SearchActivity"
             android:label="@string/title_activity_sticker_packs_list" />
+
         <activity
             android:name=".whatsapp.gifpick.GifPickActivity"
-            android:label="@string/title_activity_sticker_packs_list" >
+            android:label="@string/title_activity_sticker_packs_list">
             <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>-->
         </activity>
+
+        <activity
+            android:name=".whatsapp.create_sticker_pack.CreateStickerPackDetailActivity"
+            android:label="@string/title_activity_sticker_packs_list" />
+
         <activity
             android:name=".whatsapp.SelectAlbumStickersActivity"
             android:label="@string/title_activity_sticker_packs_list" />
+
         <activity
             android:name=".whatsapp.StickerPackDetailsActivity"
             android:label="@string/title_activity_sticker_packs_list" />
+
         <activity
             android:name=".whatsapp.StickerPackInfoActivity"
             android:label="@string/title_activity_sticker_pack_info"
@@ -98,8 +106,7 @@
             android:authorities="${applicationId}.stickercontentprovider"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="com.whatsapp.sticker.READ">
-        </provider>
+            android:readPermission="com.whatsapp.sticker.READ"></provider>
 
         <receiver
             android:name=".receivers.ApkMonitorReceiver"
@@ -109,8 +116,9 @@
             <intent-filter android:priority="2147483647">
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <action android:name="android.intent.action.PACKAGE_INSTALL"/>
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
+
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
