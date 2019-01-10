@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#0DB4AD</color>
     <color name="colorAccent">#0DB4AD</color>
 
+    <color name="title_bar_color">#4EA980</color>
+
     <color name="inactiveAddButtonColor">#B3B3B3</color>
     <color name="infoPageBackgroundColor">#EBEBEB</color>
     <color name="actionBarArrowColor">@color/colorAccent</color>
@@ -65,4 +67,5 @@
     <color name="draw_eraser_icon">#99FFFFFF</color>
 
     <color name="crop_edit_touched_icon">#8057BE37</color>
+
 </resources>

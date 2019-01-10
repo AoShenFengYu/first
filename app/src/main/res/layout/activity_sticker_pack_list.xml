@@ -10,57 +10,60 @@
         android:id="@+id/sticker_list_title_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#4ea980">
+        android:background="@color/title_bar_color">
+
         <TextView
             android:id="@+id/sticker_list_title"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:text="StickerChat"
-            android:textStyle="bold"
+            android:layout_marginLeft="5dp"
             android:gravity="center_vertical"
+            android:text="StickerChat"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:layout_marginLeft="5dp"/>
+            android:textStyle="bold" />
 
         <RelativeLayout
+            android:id="@+id/sticker_search_layout"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:layout_below="@id/sticker_list_title"
-            android:id="@+id/sticker_search_layout">
+            android:layout_below="@id/sticker_list_title">
+
             <ImageView
                 android:id="@+id/sticker_search_img"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:scaleType="fitXY"
-                android:layout_marginLeft="5dp"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_more"/>
+                android:layout_marginLeft="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_more" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/sticker_search_img"
-                android:textColor="#a6a6a6"
-                android:textSize="14sp"
                 android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/sticker_search_img"
                 android:gravity="center_vertical"
-                android:text="Search all the Gifs"/>
+                android:text="Search all the Gifs"
+                android:textColor="#a6a6a6"
+                android:textSize="14sp" />
 
         </RelativeLayout>
+
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/error_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:textColor="@android:color/holo_red_dark"
-        android:id="@+id/error_message" />
+        android:textColor="@android:color/holo_red_dark" />
 
     <com.qisiemoji.apksticker.recyclerview.refresh.CustomRefreshFrameLayout
         android:id="@+id/wave_channel"
         android:layout_width="match_parent"
-        android:layout_below="@id/sticker_list_title_layout"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/sticker_list_title_layout">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/sticker_pack_list"
@@ -73,7 +76,7 @@
         android:id="@+id/entry_activity_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        android:layout_gravity="center" />
 
 </RelativeLayout>

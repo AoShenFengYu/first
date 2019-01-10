@@ -2,34 +2,37 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/create_pack_rv_item_height"
-    android:paddingLeft="8dp"
-    android:paddingTop="10dp"
-    android:paddingRight="8dp"
-    android:paddingBottom="10dp">
+    android:layout_height="match_parent">
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/image_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center">
+        android:background="@drawable/bg_create_sticker_pack_detail_item">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="+"
+            android:textColor="@android:color/black"
+            android:textSize="30sp" />
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="1dp"
             android:scaleType="centerCrop" />
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
-            android:layout_marginTop="2dp"
-            android:layout_marginRight="2dp"
+            android:layout_alignParentRight="true"
             android:src="@drawable/sc_ic_delete_sticker" />
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </FrameLayout>
 
