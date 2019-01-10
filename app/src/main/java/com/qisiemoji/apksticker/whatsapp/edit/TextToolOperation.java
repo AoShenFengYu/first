@@ -74,8 +74,6 @@ public class TextToolOperation extends BaseToolOperation {
 
     public interface TextToolOperationCallback {
         void onTextToolOperationDelete(TextToolOperation textToolOperation);
-        void onTextToolOperationClick(TextToolOperation textToolOperation, boolean borderEnable);
-        void onTextToolOperationBorderUpdated(boolean enable);
     }
 
     private TextToolOperationCallback mTextToolOperationCallback;
@@ -154,10 +152,6 @@ public class TextToolOperation extends BaseToolOperation {
 
     @Override
     public void onTouchUp(float x, float y) {
-        if (mTextToolOperationCallback != null) {
-            mTextToolOperationCallback.onTextToolOperationClick(this, mEnableTextBorder);
-        }
-
         if (mCurrentMode == DELETE_MODE) {// 删除选定贴图
             if (mTextToolOperationCallback != null) {
                 mTextToolOperationCallback.onTextToolOperationDelete(this);
@@ -421,10 +415,6 @@ public class TextToolOperation extends BaseToolOperation {
         mLayoutY = (mViewGroup.getHeight() - mContext.getResources().getDimensionPixelOffset(R.dimen.default_text_tool_height)) / 2 + PADDING;
         addEditTextView(mLayoutX, mLayoutY);
 
-        if (mTextToolOperationCallback != null) {
-            mTextToolOperationCallback.onTextToolOperationBorderUpdated(mEnableTextBorder);
-        }
-
         mViewGroup.invalidate();
     }
 
@@ -432,8 +422,5 @@ public class TextToolOperation extends BaseToolOperation {
         mEnableTextBorder = enable;
         mBorderPaint.setColor(mTextColor == Color.WHITE ? Color.BLACK : Color.WHITE);
         mViewGroup.invalidate();
-        if (mTextToolOperationCallback != null) {
-            mTextToolOperationCallback.onTextToolOperationBorderUpdated(mEnableTextBorder);
-        }
     }
 }

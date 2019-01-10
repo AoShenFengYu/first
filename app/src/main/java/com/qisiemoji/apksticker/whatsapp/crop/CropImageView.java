@@ -80,12 +80,6 @@ public class CropImageView extends ImageViewTouchBase {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        if(mContext instanceof CropImageActivity){
-            CropImageActivity cropImageActivity = (CropImageActivity) mContext;
-            if (cropImageActivity.isSaving()) {
-                return false;
-            }
-        }
 
         if(mContext instanceof GifPickActivity){
             GifPickActivity cropImageActivity = (GifPickActivity) mContext;
@@ -132,10 +126,6 @@ public class CropImageView extends ImageViewTouchBase {
         return mSquareCropOperation.mHighlightViews.get(index);
     }
 
-    public void clearSquareHighlistView() {
-        mSquareCropOperation.mHighlightViews.clear();
-    }
-
     public void ignoreOnDraw(boolean ignore) {
         mIgnoreOnDraw = ignore;
     }
@@ -150,12 +140,8 @@ public class CropImageView extends ImageViewTouchBase {
             mCurrentCropOperation.onUnselect();
         }
         reset();
-        if (mMode == Mode.HandFree) {
-//            mCurrentCropOperation = mHandFreeCropOperation;
-        } else if (mMode == Mode.Square) {
+        if (mMode == Mode.Square) {
             mCurrentCropOperation = mSquareCropOperation;
-        } else if (mMode == Mode.ContourClip)  {
-//            mCurrentCropOperation = mContourClipCropOperation;
         } else {
             mCurrentCropOperation = null;
         }
@@ -172,23 +158,17 @@ public class CropImageView extends ImageViewTouchBase {
     }
 
     public void reset() {
-//        mHandFreeCropOperation.reset();
         mSquareCropOperation.reset();
-//        mContourClipCropOperation.reset();
     }
 
     @Override
     public void clear() {
         super.clear();
-//        mHandFreeCropOperation.clear();
         mSquareCropOperation.clear();
-//        mContourClipCropOperation.clear();
     }
 
     public void setInputInfos(int maxX, int maxY, int exifRotation) {
-//        mHandFreeCropOperation.setInputInfos(maxX, maxY, exifRotation);
         mSquareCropOperation.setInputInfos(maxX, maxY, exifRotation);
-//        mContourClipCropOperation.setInputInfos(maxX, maxY, exifRotation);
     }
 
     public Bitmap getCroppedBitmap() {
@@ -201,46 +181,6 @@ public class CropImageView extends ImageViewTouchBase {
     }
 
     public void  onPreGetCroppedBitmap() {
-        // to fix there's not free crop behavior case -> use square crop
         mSquareCropOperation.onPreGetCroppedBitmap();
-//        mHandFreeCropOperation.onPreGetCroppedBitmap();
-    }
-
-    public String getCurrentTypeString() {
-//        if (mCurrentCropOperation instanceof HandFreeCropOperation) {
-//            return "hand_free";
-//        } else
-        if (mCurrentCropOperation instanceof SquareCropOperation) {
-            return "1:1";
-        } else {
-            return null;
-        }
-    }
-
-    public void setEditableCropOperationListener(EditableCropOperation.EditableCropOperationListener listener) {
-//        mHandFreeCropOperation.setEditableCropOperationListener(listener);
-//        mContourClipCropOperation.setEditableCropOperationListener(listener);
-    }
-
-    public void setCurrentEditableCropOperationMode(EditableCropOperation.EditableCropMode mode) {
-        if (mCurrentCropOperation instanceof EditableCropOperation) {
-            ((EditableCropOperation)mCurrentCropOperation).setEditableCropMode(mode);
-        }
-    }
-
-    public void setCurrentEditableCropOperationBackOrNext(boolean back) {
-        if (mCurrentCropOperation instanceof EditableCropOperation) {
-            if (back) {
-                ((EditableCropOperation)mCurrentCropOperation).backEditAction();
-            } else {
-                ((EditableCropOperation)mCurrentCropOperation).nextEditAction();
-            }
-        }
-    }
-
-    public void setCurrentEditableCropOperationPathSize(float size) {
-        if (mCurrentCropOperation instanceof EditableCropOperation) {
-            ((EditableCropOperation)mCurrentCropOperation).setCurrentPathSize(size);
-        }
     }
 }

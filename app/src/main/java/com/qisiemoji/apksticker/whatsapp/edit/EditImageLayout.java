@@ -28,10 +28,6 @@ public class EditImageLayout extends FrameLayout {
         mHelper = new EditImageHelper(getContext(), this);
     }
 
-    public void setEditImageHelperListener(EditImageHelper.EditImageHelperListener listener) {
-        mHelper.setEditImageHelperListener(listener);
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
