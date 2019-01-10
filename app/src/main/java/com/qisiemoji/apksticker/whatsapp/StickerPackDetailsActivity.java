@@ -8,6 +8,7 @@
 
 package com.qisiemoji.apksticker.whatsapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -31,10 +33,12 @@ import java.lang.ref.WeakReference;
 /**
  * sticker详情页
  */
-public class StickerPackDetailsActivity extends AddStickerPackActivity {
+public class StickerPackDetailsActivity extends AddStickerPackActivity implements View.OnClickListener{
     public static final int USER_DOWNLOAD_SUCCESS = 100;
     public static final int USER_DOWNLOADING = 101;
     public static final int USER_DOWNLOAD_FAIL = 102;
+
+    public static final int MSG_CLICK_PACK = 1000;
     /**
      * Do not change below values of below 3 lines as this is also used by WhatsApp
      */
@@ -52,6 +56,9 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     private RecyclerView recyclerView;
     private GridLayoutManager layoutManager;
     private StickerPreviewAdapter stickerPreviewAdapter;
+    private RecyclerView topRecyclerView;
+    private TopDetailAdapter topAdapter;
+    private ImageView backImg;
     private int numColumns;
     private View addButton;
     private View alreadyAddedText;
@@ -74,9 +81,16 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         TextView packPublisherTextView = findViewById(R.id.author);
         ImageView packTrayIcon = findViewById(R.id.tray_image);
         TextView packSizeTextView = findViewById(R.id.pack_size);
+        backImg = findViewById(R.id.sticker_detail_back);
+        backImg.setOnClickListener(this);
+        topRecyclerView = findViewById(R.id.sticker_detail_recyclerview);
+        LinearLayoutManager topManager = new LinearLayoutManager(this);
+        topManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        topRecyclerView.setLayoutManager(topManager);
+        topAdapter = new TopDetailAdapter(this,handler,StickerPackListActivity.stickerPackList,stickerPack);
+        topRecyclerView.setAdapter(topAdapter);
 
         packSizeTextView.setVisibility(View.GONE);
-
         addButton = findViewById(R.id.add_to_whatsapp_button);
         alreadyAddedText = findViewById(R.id.already_added_text);
         layoutManager = new GridLayoutManager(this, 1);
@@ -111,6 +125,14 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         }
     }
 
+    private void startAcitivty(StickerPack pack){
+        Intent intent = new Intent(this, StickerPackDetailsActivity.class);
+        intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
+        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -125,7 +147,15 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     private void showDialog(){
         isDownloading = true;
         dialog = new WaStickerDialog(this,R.style.CustomDialog,stickerPack);
-        dialog.setCancelable(false);
+//        dialog.setCancelable(false);
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if(stickerPack != null){
+                    stickerPack.endDownload();
+                }
+            }
+        });
         dialog.show();
     }
 
@@ -237,6 +267,15 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.sticker_detail_back:
+                finish();
+                return;
+        }
+    }
+
     /**
      * 用于检查当前stickerpack是否已经加入到whatsapp中
      */
@@ -296,6 +335,10 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
                     pack = (StickerPack)msg.obj;
                     pack.endDownload();
                     theLayout.onError();
+                    break;
+                case MSG_CLICK_PACK:
+                    pack = (StickerPack)msg.obj;
+                    theLayout.startAcitivty(pack);
                     break;
                 default:
                     break;

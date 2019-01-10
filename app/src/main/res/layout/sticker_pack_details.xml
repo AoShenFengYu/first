@@ -5,8 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/preview_side_margin"
-    android:layout_marginTop="8dp"
     android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#4aa280">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/gifkb_ic_back"
+            android:layout_centerVertical="true"
+            android:id="@+id/sticker_detail_back"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/sticker_detail_back"
+            android:id="@+id/sticker_detail_recyclerview"/>
+
+    </RelativeLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -17,7 +35,6 @@
         android:layout_marginLeft="@dimen/preview_side_margin"
         android:layout_marginRight="@dimen/preview_side_margin"
         android:layout_marginStart="@dimen/preview_side_margin">
-
 
         <ImageView
             android:id="@+id/tray_image"

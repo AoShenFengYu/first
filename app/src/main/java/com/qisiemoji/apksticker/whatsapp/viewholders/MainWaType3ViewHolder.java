@@ -75,15 +75,15 @@ public class MainWaType3ViewHolder extends BaseWaMainViewHolder<StickerPack> {
         //if this sticker pack contains less stickers than the max, then take the smaller size.
         int actualNumberOfStickersToShow = 0;
         if(pack.getStickers() != null){
-            actualNumberOfStickersToShow = Math.min(4, pack.getStickers().size());
+            actualNumberOfStickersToShow = Math.min(5, pack.getStickers().size());
         }
         for (int i = 0; i < actualNumberOfStickersToShow; i++) {
             final SimpleDraweeView rowImage = (SimpleDraweeView) LayoutInflater.from(context).inflate(R.layout.sticker_pack_list_item_image, imageRowView, false);
             rowImage.setImageURI(pack.getStickers().get(i).imageFileUrl);
             final LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
-            lp.setMargins(0, lp.topMargin, 20, lp.bottomMargin);
-            lp.width = DensityUtil.dp2px(context,70);
-            lp.height = DensityUtil.dp2px(context,70);
+            lp.setMargins(0, lp.topMargin, 10, lp.bottomMargin);
+            lp.width = DensityUtil.dp2px(context,50);
+            lp.height = DensityUtil.dp2px(context,50);
             rowImage.setLayoutParams(lp);
             imageRowView.addView(rowImage);
         }
