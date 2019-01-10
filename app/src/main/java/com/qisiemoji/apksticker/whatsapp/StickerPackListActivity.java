@@ -200,7 +200,7 @@ public class StickerPackListActivity extends AddStickerPackActivity implements I
         Sticker sticker = null;
 
         for(StickerPack pack:stickerPacks){
-            pack.trayImageFile = "tryImage"+pack.trayImageUrl.substring(pack.trayImageUrl.lastIndexOf("."));
+            pack.trayImageFile = "tryImage"+pack.trayImageFile.substring(pack.trayImageFile.lastIndexOf("."));
             if(pack.stickers == null){
                 continue;
             }

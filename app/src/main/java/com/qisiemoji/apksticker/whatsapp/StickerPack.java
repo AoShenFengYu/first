@@ -24,8 +24,8 @@ public class StickerPack implements Parcelable {
     public String name;
     @JsonField(name = "publisher")
     public String publisher;
-    public String trayImageFile;
     @JsonField(name = "tray_image_file")
+    public String trayImageFile;
     public String trayImageUrl;
     @JsonField(name = "publisher_email")
     public String publisherEmail;

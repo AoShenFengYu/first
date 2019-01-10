@@ -1,7 +1,11 @@
 package com.qisiemoji.apksticker.whatsapp.gifpick;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.opengl.GLES10;
@@ -13,8 +17,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +39,9 @@ import com.qisiemoji.apksticker.whatsapp.crop.EditableCropOperation;
 import com.qisiemoji.apksticker.whatsapp.crop.GifPickImageView;
 import com.qisiemoji.apksticker.whatsapp.crop.HighlightView;
 import com.qisiemoji.apksticker.whatsapp.crop.RotateBitmap;
+import com.qisiemoji.apksticker.whatsapp.edit.EditImageHelper;
+import com.qisiemoji.apksticker.whatsapp.edit.EditImageLayout;
+import com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView;
 import com.qisiemoji.apksticker.whatsapp.manager.EditImageManager;
 import com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager;
 
@@ -57,7 +70,9 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
 
     private RecyclerView recyclerView;
 
-    private RelativeLayout funcLayout;
+    private LinearLayout funcLayout;
+
+    private RelativeLayout editContent;
 
     private ImageView img, recoverImg, addTextImg, addRandomText;
 
@@ -79,6 +94,12 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
 
     private GetCropBitmapTask mGetCropBitmapTask;
 
+    //text part
+    private FrameLayout editImageContainer;
+    private Bitmap editImageBaseBitmap;
+    private EditImageLayout editImageLayout;
+    private EditText enterText;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +112,7 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
         addRandomText = findViewById(R.id.gifpick_random_text);
         addToGroup = findViewById(R.id.gifpick_add);
         funcLayout = findViewById(R.id.gifpick_func_layout);
+        editContent = findViewById(R.id.edit_content);
         gifPickImg = findViewById(R.id.gifpick_crop_img);
         gifPickImg.mContext = this;
 
@@ -104,6 +126,8 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.addItemDecoration(new SpacesItemDecoration(4));
         recyclerView.setAdapter(adapter);
+
+        setupEditContents();
     }
 
     public boolean isSaving() {
@@ -116,9 +140,18 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             return;
         }
 
+        Bitmap bitmap;
+        if (editImageBaseBitmap != null) {
+            bitmap = editImageBaseBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawBitmap(editImageLayout.getOperationBitmap(), 0, 0, new Paint());
+        } else {
+            gifPickImg.onPreGetCroppedBitmap();
+            bitmap = gifPickImg.getCroppedBitmap();
+        }
         gifPickImg.onPreGetCroppedBitmap();
         WAStickerManager.SaveTempImageFileTask task = new WAStickerManager
-                .SaveTempImageFileTask(GifPickActivity.this, gifPickImg.getCroppedBitmap()
+                .SaveTempImageFileTask(GifPickActivity.this, bitmap
                 , new WAStickerManager.SaveTempImageFileCallback() {
             @Override
             public void onFinishSaved(String path) {
@@ -221,16 +254,139 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.gifpick_recovery:
+                editContent.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
                 break;
             case R.id.gifpick_add_text:
+                doCropAndEnterAddTextMode(null);
                 break;
             case R.id.gifpick_random_text:
+                // TODO get random text
+                String randomText = "Random";
+                doCropAndEnterAddTextMode(randomText);
                 break;
             case R.id.gifpick_add:
                 clickConfirm();
                 break;
             default:
                 break;
+        }
+    }
+
+    private void doCropAndEnterAddTextMode(final String defaultText) {
+        recyclerView.setVisibility(View.VISIBLE);
+        editContent.setVisibility(View.VISIBLE);
+        editImageContainer.setVisibility(View.VISIBLE);
+        gifPickImg.onPreGetCroppedBitmap();
+        Bitmap croppedBitmap = gifPickImg.getCroppedBitmap();
+        if (croppedBitmap != null) {
+            editImageBaseBitmap = Bitmap.createBitmap(croppedBitmap);
+            ImageView editImageBase = findViewById(R.id.edit_image_view_base);
+            editImageBase.setImageBitmap(editImageBaseBitmap);
+        }
+        editImageLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                editImageLayout.createTextToolText();
+                editImageLayout.setTextToolColor(Color.WHITE);
+                enterText.setText(defaultText);
+            }
+        });
+        enterText.requestFocus();
+        showSoftInput(enterText);
+    }
+
+    private void setupEditContents() {
+        CircleColorImageView color1 = findViewById(R.id.color_1);
+        color1.setColor(Color.WHITE);
+        color1.setOnClickListener(new TextColorClickListener(Color.WHITE));
+        CircleColorImageView color2 = findViewById(R.id.color_2);
+        color2.setColor(Color.BLACK);
+        color2.setOnClickListener(new TextColorClickListener(Color.BLACK));
+        CircleColorImageView color3 = findViewById(R.id.color_3);
+        color3.setColor(Color.RED);
+        color3.setOnClickListener(new TextColorClickListener(Color.RED));
+        CircleColorImageView color4 = findViewById(R.id.color_4);
+        color4.setColor(Color.YELLOW);
+        color4.setOnClickListener(new TextColorClickListener(Color.YELLOW));
+        CircleColorImageView color5 = findViewById(R.id.color_5);
+        color5.setColor(Color.GREEN);
+        color5.setOnClickListener(new TextColorClickListener(Color.GREEN));
+        CircleColorImageView color6 = findViewById(R.id.color_6);
+        color6.setColor(Color.BLUE);
+        color6.setOnClickListener(new TextColorClickListener(Color.BLUE));
+        CircleColorImageView color7 = findViewById(R.id.color_7);
+        color7.setColor(Color.MAGENTA);
+        color7.setOnClickListener(new TextColorClickListener(Color.MAGENTA));
+
+        ImageView finishAddText = findViewById(R.id.finish_add_text);
+        finishAddText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editContent.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.GONE);
+                hideSoftInput(enterText);
+            }
+        });
+
+        editImageContainer = findViewById(R.id.edit_image_container);
+        editImageLayout = findViewById(R.id.edit_image);
+        editImageLayout.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        editImageLayout.setEditImageHelperListener(new EditImageHelper.EditImageHelperListener() {
+            @Override
+            public void onPreNextStateUpdated(boolean canPre, boolean canNext) {
+            }
+
+            @Override
+            public void onClickExistTextToolOperation() {
+
+            }
+
+            @Override
+            public void onClickTextToolOperation(int color, boolean borderEnable) {
+
+            }
+
+            @Override
+            public void onNewCurrentToolNull() {
+
+            }
+
+            @Override
+            public void onTextToolOperationBorderUpdated(boolean enable) {
+
+            }
+        });
+
+        enterText = findViewById(R.id.enter_text);
+        enterText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String text = s.toString().trim();
+                editImageLayout.setTextToolText(text);
+            }
+        });
+    }
+
+    private class TextColorClickListener implements View.OnClickListener {
+        int color;
+        TextColorClickListener(int color) {
+            this.color = color;
+        }
+
+        @Override
+        public void onClick(View v) {
+            editImageLayout.setTextToolColor(color);
         }
     }
 
@@ -433,6 +589,24 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
                 default:
                     break;
             }
+        }
+    }
+
+    private void showSoftInput(EditText editText) {
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editText, 0);
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void hideSoftInput(EditText editText) {
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+        } catch (Exception e) {
+
         }
     }
 }

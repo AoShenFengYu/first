@@ -1,23 +1,15 @@
 package com.qisiemoji.apksticker.whatsapp.search;
 
-import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.giphy.sdk.core.models.Media;
@@ -44,14 +35,12 @@ import com.giphy.sdk.core.network.api.CompletionHandler;
 import com.giphy.sdk.core.network.api.GPHApi;
 import com.giphy.sdk.core.network.api.GPHApiClient;
 import com.giphy.sdk.core.network.response.ListMediaResponse;
-import com.qisiemoji.apksticker.BuildConfig;
 import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.recyclerview.SpacesItemDecoration;
 import com.qisiemoji.apksticker.recyclerview.ptr.listener.IRefreshListener;
 import com.qisiemoji.apksticker.recyclerview.refresh.CustomRefreshFrameLayout;
 import com.qisiemoji.apksticker.whatsapp.Sticker;
 import com.qisiemoji.apksticker.whatsapp.StickerPack;
-import com.qisiemoji.apksticker.whatsapp.StickerPackDetailsActivity;
 import com.qisiemoji.apksticker.whatsapp.gifpick.GifPickActivity;
 import com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager;
 
@@ -59,10 +48,10 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
+import static com.qisiemoji.apksticker.whatsapp.StickerPackListActivity.hotWords;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_SELECTED_LIST;
-import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_STICKER_PACK_DATA;
-import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST_CODE_PERMISSION_STORAGE;
 
 public class SearchFragment extends Fragment implements IRefreshListener, View.OnClickListener, GifSearchClickListener {
     private static final int PERMISSION_STORAGE_REQUEST_CODE = 100;
@@ -96,6 +85,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     private ProgressBar progressBar;
 
     private RelativeLayout topLayout;
+
+    private ArrayList<Integer> randomColors = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -198,7 +189,10 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             }
         });
 
-        askForStoragePermission();
+        initStickerPack();
+        showContents();
+        updateCreateStickerPakcRecyclerViewSize();
+
         return rootView;
     }
 
@@ -472,13 +466,17 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         mSelectStickerAdapter.notifyDataSetChanged();
 
         // StickerPack
-        Sticker sticker = new Sticker(null, null);
-        sticker.imageFileUrl = imagePath;
-        mStickerPack.stickers.add(sticker);
+        String tmp = mStickerPack.trayImageFile;
+        mStickerPack.trayImageFile = imagePath;
+        if (tmp != null) {
+            Sticker sticker = new Sticker(null, null);
+            sticker.imageFileUrl = tmp;
+            mStickerPack.stickers.add(0, sticker);
+        }
 
         // Update local
         WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
-        WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+        WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
 
         updateCreateStickerPakcRecyclerViewSize();
     }
@@ -502,23 +500,10 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     }
     
     private interface SelectStickerAdapterCallback {
-        void onClickPublish();
-
         void onClickDelete(String stickerPath, int index);
     }
 
     private SelectStickerAdapterCallback mSelectStickerAdapterCallback = new SelectStickerAdapterCallback() {
-        @Override
-        public void onClickPublish() {
-            if (WAStickerManager.getInstance().showWhatsAppVersionNotSupportDailogIfNeed(getActivity(), getChildFragmentManager())) {
-                return;
-            }
-
-            WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Publish);
-            mPublishStickerPackTask = new WAStickerManager.PublishStickerPackTask(getActivity(), mStickerPack, mCreateStickerPackTaskCallback);
-            mPublishStickerPackTask.execute();
-        }
-
         @Override
         public void onClickDelete(String stickerPath, int index) {
             mAllStickerPaths.remove(index);
@@ -527,43 +512,20 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             updateCreateStickerPakcRecyclerViewSize();
 
             if (index == 0) {
-                mStickerPack.trayImageFile = null;
+                if (mStickerPack.stickers.size() > 0) {
+                    mStickerPack.trayImageFile = mStickerPack.stickers.get(0).imageFileUrl;
+                    mStickerPack.stickers.remove(0);
+                } else {
+                    mStickerPack.trayImageFile = null;
+                }
             } else {
-                mStickerPack.stickers.get(index).imageFileUrl = null;
+                mStickerPack.stickers.remove(index-1);
             }
 
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
-            WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+            WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
         }
     };
-
-    private WAStickerManager.CreateStickerPackTaskCallback mCreateStickerPackTaskCallback = new WAStickerManager.CreateStickerPackTaskCallback() {
-        @Override
-        public void onFinishCreated(StickerPack pack) {
-            addStickerPackToWhatsApp(pack.identifier, pack.name);
-        }
-    };
-
-    /**
-     * 添加stickerpack到whatsapp
-     * @param identifier
-     * @param stickerPackName
-     */
-    private void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
-        if (getActivity() == null || !isAdded()) {
-            return;
-        }
-        Intent intent = new Intent();
-        intent.setAction("com.whatsapp.intent.action.ENABLE_STICKER_PACK");
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_ID, identifier);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_AUTHORITY, BuildConfig.CONTENT_PROVIDER_AUTHORITY);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_NAME, stickerPackName);
-        try {
-            startActivityForResult(intent, ADD_PACK);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getActivity(), R.string.error_adding_sticker_pack, Toast.LENGTH_LONG).show();
-        }
-    }
 
     static class SelectStickerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         static int TYPE_MAKER_ENTRY = 0x1000;
@@ -691,73 +653,22 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         }
     }
 
-    /**
-     * 申请存储权限
-     */
-    private void askForStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Storage access");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setMessage("please confirm Storage access");
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            ActivityCompat.requestPermissions(getActivity(),
-                                    new String[]
-                                            {Manifest.permission.READ_EXTERNAL_STORAGE
-                                                    , Manifest.permission.WRITE_EXTERNAL_STORAGE}
-                                    , REQUEST_CODE_PERMISSION_STORAGE);
-                        }
-                    });
-                    builder.show();
-                } else {
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE
-                                    , Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CODE_PERMISSION_STORAGE);
-                }
-            } else {
-                onStoragePermissionGranted();
-            }
-        } else {
-            onStoragePermissionGranted();
-        }
-    }
-
-    private void onStoragePermissionGranted() {
-        initStickerPack();
-        showContents();
-    }
-
-    /**
-     * 初始化sticker数据结构
-     */
     private void initStickerPack() {
-        if (getActivity().getIntent().hasExtra(EXTRA_STICKER_PACK_DATA)) {
-            // edit
-            mStickerPack = getActivity().getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
-            mPackName = mStickerPack.name;
-            mAuthor = mStickerPack.publisher;
-        } else {
-            // create
-            mPackName = getActivity().getIntent().getStringExtra("stickerPackName");
-            mAuthor = getActivity().getIntent().getStringExtra("author");
-            List<Sticker> stickers = new ArrayList<>();
-            String identifier = WAStickerManager.getInstance().getNextNewStickerPacksFolderName(getActivity());
-            for (int i = 0; i < 30; i++) {
-                Sticker sticker = new Sticker(null, null);
-                sticker.imageFileUrl = null;
-                stickers.add(sticker);
+        List<StickerPack> stickerPacks = WAStickerManager.getInstance().queryAll(getContext(), WAStickerManager.FileStickerPackType.SearchLocal);
+        if (stickerPacks != null && stickerPacks.size() > 0) {
+            mStickerPack = stickerPacks.get(0);
+            if (mStickerPack.trayImageFile != null) {
+                mAllStickerPaths.add(mStickerPack.trayImageFile);
             }
-            mStickerPack = new StickerPack(identifier, mPackName, mAuthor, null, "", "", "", "");
+
+            for (Sticker sticker : mStickerPack.stickers) {
+                mAllStickerPaths.add(sticker.imageFileUrl);
+            }
+        } else {
+            List<Sticker> stickers = new ArrayList<>();
+            mStickerPack = new StickerPack("search_local", mPackName, mAuthor, null, "", "", "", "");
             mStickerPack.setStickers(stickers);
-            WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Create);
-            WAStickerManager.getInstance().save(getActivity(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+            WAStickerManager.getInstance().save(getActivity(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
         }
     }
 
@@ -780,27 +691,45 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     }
 
     private void setupDefaultTrendTags(LineBreakLayout.LineBreakLayoutListener listener) {
+        randomColors.add(Color.RED);
+        randomColors.add(Color.BLUE);
+        randomColors.add(Color.BLACK);
+        randomColors.add(Color.CYAN);
+        randomColors.add(Color.GREEN);
+        randomColors.add(Color.GRAY);
+        randomColors.add(Color.YELLOW);
+
         List<LineBreakLayout.LineBreakLayoutItem> lable = new ArrayList<>();
         // fixme use hard code now, should get the list from server
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("love", Color.RED));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("happy birthday", Color.BLUE));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem( "hello", Color.BLACK));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem( "yes", Color.CYAN));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("no", Color.GRAY));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("kiss", Color.GREEN));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("excited", Color.DKGRAY));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("sad", Color.RED));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("what", Color.BLUE));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("crying", Color.YELLOW));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("happy", Color.BLUE));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("trump", Color.CYAN));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("hahaha", Color.RED));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("no", Color.RED));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("kiss", Color.BLACK));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("excited", Color.GREEN));
-        lable.add(new LineBreakLayout.LineBreakLayoutItem("sad", Color.CYAN));
+        for (String word : hotWords) {
+            lable.add(new LineBreakLayout.LineBreakLayoutItem(word, getRandomColor()));
+        }
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("love", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("happy birthday", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem( "hello", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem( "yes", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("no", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("kiss", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("excited", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("sad", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("what", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("crying", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("happy", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("trump", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("hahaha", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("no", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("kiss", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("excited", getRandomColor()));
+        lable.add(new LineBreakLayout.LineBreakLayoutItem("sad", getRandomColor()));
+
         defaultTrendTagsLayout.setItems(lable, true);
         defaultTrendTagsLayout.setLineBreakLayoutListener(listener);
         defaultTrendTagsLayout.setVisibility(View.GONE);
+    }
+
+    private int getRandomColor() {
+        Random r = new Random();
+        return randomColors.get(r.nextInt(randomColors.size()));
+
     }
 }

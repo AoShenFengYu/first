@@ -67,7 +67,7 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
             addToToolOperations = true;
         } else {
             if (!isInitialStateInTextOperation()) {
-                mCurrentToolOperation = newCurrentTool(true);
+                mCurrentToolOperation = null;
                 addToToolOperations = true;
             }
         }
@@ -111,54 +111,6 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
         }
     }
 
-    public void finishOperation() {
-        if (mCurrentToolOperation != null) {
-            mCurrentToolOperation.finishOperation();
-        }
-    }
-
-    public void setCurrentToolType(ToolType toolType) {
-        mCurrentToolType = toolType;
-    }
-
-    private BaseToolOperation newCurrentTool(boolean fromTouch) {
-        if (fromTouch && mCurrentToolType == ToolType.Draw) {
-            return new DrawToolOperation(mContext, mViewGroup);
-        } else if (!fromTouch && mCurrentToolType == ToolType.Text) {
-            return new TextToolOperation(mContext, mViewGroup, this);
-        } else {
-            if (mEditImageHelperListener != null) {
-                mEditImageHelperListener.onNewCurrentToolNull();
-            }
-            return null;
-        }
-    }
-
-    public void preOperation() {
-        finishOperation();
-        if (canPre()) {
-            BaseToolOperation tmpOperation = mToolOperations.remove(mToolOperations.size() - 1);
-            mTmpOperations.add(tmpOperation);
-            mViewGroup.invalidate();
-            if (mEditImageHelperListener != null) {
-                mEditImageHelperListener.onPreNextStateUpdated(canPre(), canNext());
-            }
-        }
-
-    }
-
-    public void nextOperation() {
-        finishOperation();
-        if (canNext()) {
-            BaseToolOperation tmpOperation = mTmpOperations.remove(mTmpOperations.size() - 1);
-            mToolOperations.add(tmpOperation);
-            mViewGroup.invalidate();
-            if (mEditImageHelperListener != null) {
-                mEditImageHelperListener.onPreNextStateUpdated(canPre(), canNext());
-            }
-        }
-    }
-
     private boolean canPre() {
         return mToolOperations.size() > 0;
     }
@@ -195,7 +147,7 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
         }
     }
 
-    public void createTextToolText(boolean showKeyboard) {
+    public void createTextToolText() {
         if (mCurrentToolOperation != null
                 && mCurrentToolOperation instanceof TextToolOperation
                 && !mCurrentToolOperation.shouldKeep()) {
@@ -208,10 +160,10 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
             mToolOperations.get(i).setHasFocus(false);
         }
 
-        mCurrentToolOperation = newCurrentTool(false);
+        mCurrentToolOperation = new TextToolOperation(mContext, mViewGroup, this); // newCurrentTool(false);
         if (mCurrentToolOperation != null && mCurrentToolOperation instanceof TextToolOperation) {
             mToolOperations.add(mCurrentToolOperation);
-            ((TextToolOperation) mCurrentToolOperation).createText(showKeyboard);
+            ((TextToolOperation) mCurrentToolOperation).createText();
         }
 
         mTmpOperations.clear();
@@ -223,6 +175,12 @@ public class EditImageHelper implements TextToolOperation.TextToolOperationCallb
     public void enableTextToolTextBorder(boolean enable) {
         if (mCurrentToolOperation instanceof TextToolOperation) {
             ((TextToolOperation)mCurrentToolOperation).enableTextBorder(enable);
+        }
+    }
+
+    public void setTextToolText(String text) {
+        if (mCurrentToolOperation instanceof TextToolOperation) {
+            ((TextToolOperation)mCurrentToolOperation).setText(text);
         }
     }
 

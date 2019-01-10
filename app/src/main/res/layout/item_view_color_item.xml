@@ -13,7 +13,7 @@
         android:layout_width="@dimen/color_item_size"
         android:layout_height="@dimen/color_item_size"
         android:layout_gravity="center">
-        <com.qisiemoji.apksticker.whatsapp.edit.widget.RoundCornerColorImageView
+        <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
             android:id="@+id/color_image"
             android:layout_width="32dp"
             android:layout_height="32dp"

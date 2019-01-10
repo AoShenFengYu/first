@@ -28,20 +28,6 @@ public class EditImageLayout extends FrameLayout {
         mHelper = new EditImageHelper(getContext(), this);
     }
 
-//    @Override
-//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//
-//        int width = getMeasuredWidth();
-//        setMeasuredDimension(width, width);
-//    }
-//
-//    @Override
-//    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//        super.onLayout(changed, left, top, right, bottom);
-//        generateDestBitmap();
-//    }
-
     public void setEditImageHelperListener(EditImageHelper.EditImageHelperListener listener) {
         mHelper.setEditImageHelperListener(listener);
     }
@@ -75,22 +61,6 @@ public class EditImageLayout extends FrameLayout {
         return true;
     }
 
-    public void finishOperation() {
-        mHelper.finishOperation();
-    }
-
-    public void setCurrentToolType(EditImageHelper.ToolType toolType) {
-        mHelper.setCurrentToolType(toolType);
-    }
-
-    public void preOperation() {
-        mHelper.preOperation();
-    }
-
-    public void nextOperation() {
-        mHelper.nextOperation();
-    }
-
     public Bitmap getOperationBitmap() {
         int imageSize = getResources().getDimensionPixelSize(R.dimen.edit_image_size);
         Bitmap operationBitmap = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888);
@@ -103,19 +73,11 @@ public class EditImageLayout extends FrameLayout {
         mHelper.setTextToolColor(color);
     }
 
-    public void createTextToolText(boolean showKeyboard) {
-        mHelper.createTextToolText(showKeyboard);
+    public void createTextToolText() {
+        mHelper.createTextToolText();
     }
 
-    public void enableTextToolTextBorder(boolean enable) {
-        mHelper.enableTextToolTextBorder(enable);
-    }
-
-    public int getDrawCount() {
-        return mHelper.getDrawCount();
-    }
-
-    public int getTextCount() {
-        return mHelper.getTextCount();
+    public void setTextToolText(String text) {
+        mHelper.setTextToolText(text);
     }
 }

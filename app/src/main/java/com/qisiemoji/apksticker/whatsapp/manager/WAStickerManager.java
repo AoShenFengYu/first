@@ -48,6 +48,7 @@ public class WAStickerManager {
     private static final String STICKER_PACK_FOLDER_NAME = "sticker_pack_folder_name";
     private static final String FILE_STICKER_PACK_PUBLISH_NAME = ".sticker_pack_publish_info";
     private static final String FILE_STICKER_PACK_LOCAL_NAME = ".sticker_pack_local_info";
+    private static final String FILE_STICKER_PACK_SEARCH_LOCAL_NAME = ".sticker_pack_search_local_info";
     private static final int USER_DEDINED_START_FOLDER = 10000;
 
     public static final int REQUEST_CODE_CAMERA = 1888;
@@ -73,7 +74,7 @@ public class WAStickerManager {
      * Local : for local operation
      * **/
     public enum FileStickerPackType {
-        Publish, Local
+        Publish, Local, SearchLocal
     }
 
     /**
@@ -119,8 +120,10 @@ public class WAStickerManager {
     @WorkerThread
     public List<StickerPack> queryAll(Context context, FileStickerPackType type) {
         synchronized (mObject) {
-            File file = FileUtils2.getPrivateFile(context, (type == FileStickerPackType.Publish) ?
-                    FILE_STICKER_PACK_PUBLISH_NAME : FILE_STICKER_PACK_LOCAL_NAME);
+            String fileName = (type == FileStickerPackType.Publish) ? FILE_STICKER_PACK_PUBLISH_NAME :
+                    (type == FileStickerPackType.Local) ? FILE_STICKER_PACK_LOCAL_NAME : FILE_STICKER_PACK_SEARCH_LOCAL_NAME;
+
+            File file = FileUtils2.getPrivateFile(context, fileName);
             List<StickerPack> list = new ArrayList<>();
             if (FileUtils2.isFileExist(file)) {
                 FileInputStream fis = null;
@@ -140,8 +143,10 @@ public class WAStickerManager {
     @WorkerThread
     public boolean saveAll(@NonNull Context context, List<StickerPack> packs, FileStickerPackType type) {
         synchronized (mObject) {
-            File file = FileUtils2.getPrivateFile(context, (type == FileStickerPackType.Publish) ?
-                    FILE_STICKER_PACK_PUBLISH_NAME : FILE_STICKER_PACK_LOCAL_NAME);
+            String fileName = (type == FileStickerPackType.Publish) ? FILE_STICKER_PACK_PUBLISH_NAME :
+                    (type == FileStickerPackType.Local) ? FILE_STICKER_PACK_LOCAL_NAME : FILE_STICKER_PACK_SEARCH_LOCAL_NAME;
+
+            File file = FileUtils2.getPrivateFile(context, fileName);
             FileUtils2.delete(file);
             try {
                 FileUtils2.createFileIfNecessary(file);
@@ -189,8 +194,10 @@ public class WAStickerManager {
     @WorkerThread
     public boolean delete(@NonNull Context context, FileStickerPackType type) {
         synchronized (mObject) {
-            File file = FileUtils2.getPrivateFile(context, (type == FileStickerPackType.Publish) ?
-                    FILE_STICKER_PACK_PUBLISH_NAME : FILE_STICKER_PACK_LOCAL_NAME);
+            String fileName = (type == FileStickerPackType.Publish) ? FILE_STICKER_PACK_PUBLISH_NAME :
+                    (type == FileStickerPackType.Local) ? FILE_STICKER_PACK_LOCAL_NAME : FILE_STICKER_PACK_SEARCH_LOCAL_NAME;
+
+            File file = FileUtils2.getPrivateFile(context, fileName);
             return FileUtils2.delete(file);
         }
     }
@@ -538,4 +545,5 @@ public class WAStickerManager {
     public LastOperatedStickerPackState getLastOperatedStickerPackState() {
         return mLastOperatedStickerPackState;
     }
+
 }
