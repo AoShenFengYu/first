@@ -64,6 +64,7 @@ public class StickerPackListActivity extends AddStickerPackActivity implements I
     private StickerPackListAdapter allStickerPacksListAdapter;
     private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
     public static ArrayList<StickerPack> stickerPackList = new ArrayList<>();
+    public static ArrayList<String> hotWords = new ArrayList<>();
 
     private int page;
 
@@ -168,6 +169,9 @@ public class StickerPackListActivity extends AddStickerPackActivity implements I
                     if(waveChannel != null){
                         waveChannel.setLoadMoreEnable(false);
                     }
+                }
+                if(result.data.info.hotWords !=null){
+                    hotWords = result.data.info.hotWords;
                 }
                 showStickerPackList(result.data.info.stickerPacks);
             }
