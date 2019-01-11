@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 @JsonObject
 public class StickerPack implements Parcelable {
+    public static final String TRAY_IMAGE_FILE_NAME = "file.webp";
     @JsonField(name = "identifier")
     public String identifier;
     @JsonField(name = "name")
@@ -26,6 +27,7 @@ public class StickerPack implements Parcelable {
     public String publisher;
     @JsonField(name = "tray_image_file")
     public String trayImageFile;
+    @JsonField(name = "tray_image_url")
     public String trayImageUrl;
     @JsonField(name = "publisher_email")
     public String publisherEmail;
@@ -89,6 +91,7 @@ public class StickerPack implements Parcelable {
         name = in.readString();
         publisher = in.readString();
         trayImageFile = in.readString();
+        trayImageUrl = in.readString();
         publisherEmail = in.readString();
         publisherWebsite = in.readString();
         privacyPolicyWebsite = in.readString();
@@ -161,6 +164,7 @@ public class StickerPack implements Parcelable {
         dest.writeString(name);
         dest.writeString(publisher);
         dest.writeString(trayImageFile);
+        dest.writeString(trayImageUrl);
         dest.writeString(publisherEmail);
         dest.writeString(publisherWebsite);
         dest.writeString(privacyPolicyWebsite);

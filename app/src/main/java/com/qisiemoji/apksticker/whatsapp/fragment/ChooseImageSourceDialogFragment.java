@@ -114,9 +114,6 @@ public class ChooseImageSourceDialogFragment extends BasicDialogFragment impleme
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        Log.e("AAAA", "onActivityResult " + requestCode + " " + resultCode);
-
         switch (requestCode) {
             case REQ_CAPTURE_PIC:
                 if (resultCode != Activity.RESULT_OK) {

@@ -58,6 +58,10 @@ public class Sticker implements Parcelable {
         this.size = size;
     }
 
+    public long getSize() {
+        return size;
+    }
+
     public void setImageFileUrl(String url) {
         imageFileUrl = url;
     }
