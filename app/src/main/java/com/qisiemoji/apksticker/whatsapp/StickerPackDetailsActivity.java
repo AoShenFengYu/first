@@ -151,6 +151,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity implement
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
+                isDownloading = false;
                 if(stickerPack != null){
                     stickerPack.endDownload();
                 }
@@ -276,7 +277,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity implement
         }
     }
 
-    /**
+    /**`
      * 用于检查当前stickerpack是否已经加入到whatsapp中
      */
     static class WhiteListCheckAsyncTask extends AsyncTask<StickerPack, Void, Boolean> {
