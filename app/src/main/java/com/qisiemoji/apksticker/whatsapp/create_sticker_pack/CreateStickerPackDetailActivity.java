@@ -308,9 +308,9 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             mPackName = mStickerPack.name;
             mAuthor = mStickerPack.publisher;
 
-//            if (TextUtils.isEmpty(mStickerPack.trayImageFile)) {
+            if (TextUtils.isEmpty(mStickerPack.trayImageFile)) {
                 mStickerPack.trayImageFile = mStickerPack.stickers.get(0).imageFileUrl;
-//            }
+            }
 
         } else if (intent.hasExtra(EXTRA_STICKER_PACK_DATA)) {
             // edit
