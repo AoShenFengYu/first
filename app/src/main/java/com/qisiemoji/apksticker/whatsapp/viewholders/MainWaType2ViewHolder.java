@@ -11,11 +11,13 @@ package com.qisiemoji.apksticker.whatsapp.viewholders;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.util.FragmentUtil;
+import com.qisiemoji.apksticker.whatsapp.CreatedStickerPackListActivity;
 import com.qisiemoji.apksticker.whatsapp.create_sticker_pack.CreateStickerPackDetailActivity;
 import com.qisiemoji.apksticker.whatsapp.StickerPack;
 import com.qisiemoji.apksticker.whatsapp.fragment.CreateStickerPackDialogFragment;
@@ -66,6 +68,15 @@ public class MainWaType2ViewHolder extends BaseWaMainViewHolder<StickerPack> {
                 } else {
                     intent = CreateStickerPackDetailActivity.edit(context, stickerPack);
                 }
+                context.startActivity(intent);
+            }
+        });
+
+        View enterCreatedPacksPage = itemView.findViewById(R.id.gif_create_33);
+        enterCreatedPacksPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, CreatedStickerPackListActivity.class);
                 context.startActivity(intent);
             }
         });

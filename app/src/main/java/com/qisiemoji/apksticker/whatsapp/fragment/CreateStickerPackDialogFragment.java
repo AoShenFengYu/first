@@ -22,9 +22,6 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
 
     private AppCompatEditText mStickerPackName;
     private AppCompatEditText mAuthorName;
-    private View mAuthorInfo;
-    private View mExpend;
-    private View mClearAuthor;
 
     public interface CreateStickerPackDialogFragmentCallBack {
         void onClickCreateButton(String stickerPackName, String author);
@@ -99,33 +96,6 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
         mAuthorName = view.findViewById(R.id.author);
         mAuthorName.setFilters(new InputFilter[]{filter});
         mAuthorName.addTextChangedListener(new UploadTextWatcher());
-        mExpend = view.findViewById(R.id.expend);
-        mExpend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mExpend.setVisibility(View.GONE);
-                showHideAuthorInfo(true, true);
-            }
-        });
-        mAuthorInfo = view.findViewById(R.id.author_info);
-        mClearAuthor = view.findViewById(R.id.clear_author);
-        mClearAuthor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WAStickerManager.getInstance().setCreatPackAuthor(getContext(), null);
-                mAuthorName.setText(null);
-                mAuthorName.requestFocus();
-            }
-        });
-        String originalAuthor = WAStickerManager.getInstance().getCreatPackAuthorIfExist(getContext());
-        if (originalAuthor != null) {
-            mAuthorName.setText(originalAuthor);
-            showHideAuthorInfo(false, false);
-        } else {
-            mExpend.setVisibility(View.GONE);
-            mClearAuthor.setVisibility(View.GONE);
-            showHideAuthorInfo(true, false);
-        }
     }
 
     private class UploadTextWatcher implements TextWatcher {
@@ -157,10 +127,5 @@ public class CreateStickerPackDialogFragment extends BasicDialogFragment {
         } else {
             mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
         }
-    }
-
-    private void showHideAuthorInfo(boolean show, boolean clear) {
-        mAuthorInfo.setVisibility(show ? View.VISIBLE : View.GONE);
-        mClearAuthor.setVisibility(clear ? View.VISIBLE : View.GONE);
     }
 }

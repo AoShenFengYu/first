@@ -78,6 +78,10 @@
             android:label="@string/title_activity_sticker_packs_list" />
 
         <activity
+            android:name=".whatsapp.CreatedStickerPackListActivity"
+            android:label="" />
+
+        <activity
             android:name=".whatsapp.StickerPackDetailsActivity"
             android:label="@string/title_activity_sticker_packs_list" />
 
