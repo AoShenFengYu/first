@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +62,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     private static final String EXTRA_STICKER_PACK_DATA = "sticker_pack";
     private static final String EXTRA_STICKER_PACK_AUTHOR = "author";
     private static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
+    private static final String EXTRA_FROM_SEARCH = "from_search";
     private static final String EXTRA_PREVIEW = "preview";
 
     /**
@@ -76,9 +76,14 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     }
 
     public static Intent edit(Context context, StickerPack stickerPack) {
+        return edit(context, stickerPack, false);
+    }
+
+    public static Intent edit(Context context, StickerPack stickerPack, boolean fromSearch) {
         Intent intent = new Intent(context, CreateStickerPackDetailActivity.class);
         intent.putExtra(EXTRA_STICKER_PACK_DATA, stickerPack);
         intent.putExtra(EXTRA_SHOW_UP_BUTTON, false);
+        intent.putExtra(EXTRA_FROM_SEARCH, fromSearch);
         return intent;
     }
 
@@ -100,6 +105,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     private TextView mPackPublisherTextView;
     private TextView mPackSizeTextView;
 
+    private String searchLocalIdentifier;
 
     /**
      * Add to wa
@@ -186,7 +192,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
                     currentSticker.setImageFileUrl(nextSticker.getImageFileUrl());
                 }
 
-                if (i == 0) {
+                if (i == 0 && !mStickerPack.identifier.equals(searchLocalIdentifier)) {
                     // 如果在更新第一個item，那麼連Icon也要更新
                     mStickerPack.trayImageFile = currentItem.getImageUrl();
                 }
@@ -195,6 +201,10 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             updateList(index);
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
             WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+
+            if (mStickerPack.identifier.equals(searchLocalIdentifier)) {
+                WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
+            }
         }
 
     };
@@ -212,6 +222,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     private String mAuthor;
     private boolean mIsButtonShownUp;
     private boolean mIsPreview;
+    private boolean mFromSearch;
     private ArrayList<StickerItem> mAllItems = new ArrayList<>();
 
     /**
@@ -301,6 +312,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
 
         mIsButtonShownUp = intent.getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
         mIsPreview = intent.getBooleanExtra(EXTRA_PREVIEW, false);
+        mFromSearch = intent.getBooleanExtra(EXTRA_FROM_SEARCH, false);
 
         if (mIsPreview) {
             // preview
@@ -317,6 +329,24 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             mStickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
             mPackName = mStickerPack.name;
             mAuthor = mStickerPack.publisher;
+            if (mStickerPack.stickers != null && mStickerPack.stickers.size() != 30) {
+                for (int i = mStickerPack.stickers.size() ; i < 30 ; i++) {
+                    mStickerPack.stickers.add(new Sticker());
+                }
+            }
+
+            if (mFromSearch) {
+                if ("search_local".equals(mStickerPack.identifier)) {
+                    String identifier = WAStickerManager.getInstance().getNextNewStickerPacksFolderName(this);
+                    mStickerPack.identifier = identifier;
+                    WAStickerManager.getInstance().save(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+
+                    WAStickerManager.getInstance().delete(getApplicationContext(), WAStickerManager.FileStickerPackType.SearchLocal);
+                    WAStickerManager.getInstance().save(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
+                } else {
+                    WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+                }
+            }
 
         } else {
             // create
@@ -334,6 +364,9 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Create);
             WAStickerManager.getInstance().save(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
         }
+
+        searchLocalIdentifier = WAStickerManager.getInstance().getSearchLocalIdentifier(getApplicationContext());
+        Log.d("willy", "searchLocalIdentifier : " + searchLocalIdentifier);
     }
 
     /**
@@ -382,13 +415,13 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     }
 
     public void updateAddButton(Boolean isWhitelisted) {
-        if (isWhitelisted) {
-            mAddToWaButton.setVisibility(View.GONE);
-            mAlreadyAddedText.setVisibility(View.VISIBLE);
-        } else {
+//        if (isWhitelisted) {
+//            mAddToWaButton.setVisibility(View.GONE);
+//            mAlreadyAddedText.setVisibility(View.VISIBLE);
+//        } else {
             mAddToWaButton.setVisibility(View.VISIBLE);
             mAlreadyAddedText.setVisibility(View.GONE);
-        }
+//        }
     }
 
     /**
@@ -474,7 +507,11 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-
+        if (requestCode == ADD_PACK && resultCode == RESULT_OK) {
+            if (mStickerPack.identifier.equals(searchLocalIdentifier)) {
+                WAStickerManager.getInstance().delete(getApplicationContext(), WAStickerManager.FileStickerPackType.SearchLocal);
+            }
+        }
     }
 
     private int getStickerCount() {
@@ -655,6 +692,10 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         updateList(lastIndex);
         WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
         WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
+
+        if (mStickerPack.identifier.equals(searchLocalIdentifier)) {
+            WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
+        }
     }
 
 }

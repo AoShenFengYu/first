@@ -558,4 +558,11 @@ public class WAStickerManager {
         return mLastOperatedStickerPackState;
     }
 
+    public String getSearchLocalIdentifier(Context context) {
+        List<StickerPack> searchLocals = WAStickerManager.getInstance().queryAll(context, WAStickerManager.FileStickerPackType.SearchLocal);
+        if (searchLocals != null && searchLocals.size() > 0) {
+            return searchLocals.get(0).identifier;
+        }
+        return null;
+    }
 }

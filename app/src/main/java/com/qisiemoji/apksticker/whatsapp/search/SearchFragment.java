@@ -167,7 +167,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
 
 
         bottomRecyclerView = rootView.findViewById(R.id.gifsearch_bottom_recyclerview);
-        mSelectStickerAdapter = new SelectStickerAdapter(getActivity(), mAllStickerPaths, mSelectStickerAdapterCallback);
+        mSelectStickerAdapter = new SelectStickerAdapter(getActivity(), null, mSelectStickerAdapterCallback);
         GridLayoutManager ms = new GridLayoutManager(getActivity(),4);
         bottomRecyclerView.setLayoutManager(ms);
         bottomRecyclerView.setAdapter(mSelectStickerAdapter);
@@ -176,7 +176,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         createStickerPack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = CreateStickerPackDetailActivity.edit(getContext(), mStickerPack);
+                Intent intent = CreateStickerPackDetailActivity.edit(getContext(), mStickerPack, true);
                 getContext().startActivity(intent);
             }
         });
@@ -191,10 +191,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             }
         });
 
-        initStickerPack();
-        showContents();
-        updateCreateStickerPakcRecyclerViewSize();
-
+        // defaultTrendTagsLayout
+        defaultTrendTagsLayout.setVisibility(View.VISIBLE);
         return rootView;
     }
 
@@ -202,6 +200,9 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     public void onResume() {
         super.onResume();
 
+        initStickerPack();
+        showContents();
+        updateCreateStickerPakcRecyclerViewSize();
     }
 
     @Override
@@ -475,6 +476,11 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             mStickerPack.stickers.add(0, sticker);
         }
 
+        if (mStickerPack.name == null) {
+            mStickerPack.name = currentTag;
+            mStickerPack.publisher = currentTag;
+        }
+
         // Update local
         WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
         WAStickerManager.getInstance().update(getContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
@@ -655,6 +661,7 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     }
 
     private void initStickerPack() {
+        mAllStickerPaths.clear();
         List<StickerPack> stickerPacks = WAStickerManager.getInstance().queryAll(getContext(), WAStickerManager.FileStickerPackType.SearchLocal);
         if (stickerPacks != null && stickerPacks.size() > 0) {
             mStickerPack = stickerPacks.get(0);
@@ -663,7 +670,9 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
             }
 
             for (Sticker sticker : mStickerPack.stickers) {
-                mAllStickerPaths.add(sticker.imageFileUrl);
+                if (sticker.imageFileUrl != null) {
+                    mAllStickerPaths.add(sticker.imageFileUrl);
+                }
             }
         } else {
             List<Sticker> stickers = new ArrayList<>();
@@ -678,9 +687,6 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         mAllStickerPaths.add("maker_entry");
         mSelectStickerAdapter.setStickerPaths(mAllStickerPaths);
         mSelectStickerAdapter.notifyDataSetChanged();
-
-        // defaultTrendTagsLayout
-        defaultTrendTagsLayout.setVisibility(View.VISIBLE);
     }
 
     private void updateCreateStickerPakcRecyclerViewSize() {
