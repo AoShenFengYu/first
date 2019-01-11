@@ -50,8 +50,20 @@ public abstract class AddStickerPackActivity extends BaseActivity {
                 } else {
 //                    new StickerPackNotAddedMessageFragment().show(getSupportFragmentManager(), "sticker_pack_not_added");
                 }
+
+                onFailToAddWa();
+            } else {
+                onSuccessToAddWa();
             }
         }
+    }
+
+    protected void onFailToAddWa() {
+
+    }
+
+    protected void onSuccessToAddWa() {
+
     }
 
 //    public static final class StickerPackNotAddedMessageFragment extends DialogFragment {

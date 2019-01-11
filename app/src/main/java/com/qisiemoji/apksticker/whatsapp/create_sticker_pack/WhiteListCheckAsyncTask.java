@@ -29,7 +29,7 @@ public class WhiteListCheckAsyncTask extends AsyncTask<StickerPack, Void, Boolea
     protected void onPostExecute(Boolean isWhitelisted) {
         final CreateStickerPackDetailActivity activity = weakReference.get();
         if (activity != null) {
-            activity.updateAddButton(isWhitelisted);
+//            activity.updateButton(...);
         }
     }
 }

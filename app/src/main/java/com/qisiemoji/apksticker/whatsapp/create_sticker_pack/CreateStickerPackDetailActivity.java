@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,6 +26,7 @@ import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.util.FragmentUtil;
 import com.qisiemoji.apksticker.views.WaStickerDialog;
 import com.qisiemoji.apksticker.whatsapp.AddStickerPackActivity;
+import com.qisiemoji.apksticker.whatsapp.CreatedStickerPackListActivity;
 import com.qisiemoji.apksticker.whatsapp.Sticker;
 import com.qisiemoji.apksticker.whatsapp.StickerPack;
 import com.qisiemoji.apksticker.whatsapp.StickerPackLoader;
@@ -304,13 +304,13 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         mIsButtonShownUp = intent.getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
         mFromSearch = intent.getBooleanExtra(EXTRA_FROM_SEARCH, false);
 
-         if (intent.hasExtra(EXTRA_STICKER_PACK_DATA)) {
+        if (intent.hasExtra(EXTRA_STICKER_PACK_DATA)) {
             // edit
             mStickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
             mPackName = mStickerPack.name;
             mAuthor = mStickerPack.publisher;
             if (mStickerPack.stickers != null && mStickerPack.stickers.size() != 30) {
-                for (int i = mStickerPack.stickers.size() ; i < 30 ; i++) {
+                for (int i = mStickerPack.stickers.size(); i < 30; i++) {
                     mStickerPack.stickers.add(new Sticker());
                 }
             }
@@ -358,7 +358,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             mAllItems.add(item);
         }
         mAdapter.setStickerItems(mAllItems, false);
-        setCanPublish(isValidContent(), true);
+        updateButton(isValidContent());
         mAdapter.notifyDataSetChanged();
     }
 
@@ -369,7 +369,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         mAdapter.notifyItemRangeChanged(startIndex, mAdapter.getItemCount() - 1);
 
         updateIcon();
-        setCanPublish(isValidContent(), true);
+        updateButton(isValidContent());
     }
 
     private void updateIcon() {
@@ -390,38 +390,30 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
 //        mPackSizeTextView.setText(Formatter.formatShortFileSize(this, mStickerPack.getTotalSize()));
     }
 
-    public void updateAddButton(Boolean isWhitelisted) {
-//        if (isWhitelisted) {
-//            mAddToWaButton.setVisibility(View.GONE);
-//            mAlreadyAddedText.setVisibility(View.VISIBLE);
-//        } else {
-            mAddToWaButton.setVisibility(View.VISIBLE);
-            mAlreadyAddedText.setVisibility(View.GONE);
-//        }
-    }
-
     /**
      * 設置Add to wa按鈕的enable
      **/
-    private void setCanPublish(boolean validContent, boolean canPublish) {
-
+    private void updateButton(boolean enable) {
+        mAddToWaButton.setVisibility(enable ? View.VISIBLE : View.GONE);
+        mAlreadyAddedText.setVisibility(enable ? View.GONE : View.VISIBLE);
     }
 
-    private boolean isValidContent() {
-        if (mStickerPack == null || mStickerPack.trayImageUrl == null || mStickerPack.stickers == null) {
+    public boolean isValidContent() {
+        if (mStickerPack == null || TextUtils.isEmpty(mStickerPack.trayImageFile) || mStickerPack.stickers == null) {
             return false;
         }
 
-        // Whatsapp nees 1 icon 3 stickers
         int stickerCount = 0;
         for (Sticker sticker : mStickerPack.stickers) {
-            if (sticker.imageFileUrl != null) {
-                stickerCount = stickerCount + 1;
-            }
-            if (stickerCount >= 3) {
-                return true;
+            if (!TextUtils.isEmpty(sticker.imageFileUrl)) {
+                stickerCount++;
             }
         }
+
+        if (stickerCount > 0) {
+            return true;
+        }
+
         return false;
     }
 
@@ -493,28 +485,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         }
     }
 
-    private int getStickerCount() {
-        if (mStickerPack == null) {
-            return 0;
-        }
-
-        int stickerCount = 0;
-        if (mStickerPack.trayImageUrl != null) {
-            stickerCount = stickerCount + 1;
-        }
-
-        if (mStickerPack.stickers == null) {
-            return stickerCount;
-        }
-
-        for (Sticker sticker : mStickerPack.stickers) {
-            if (sticker.imageFileUrl != null) {
-                stickerCount = stickerCount + 1;
-            }
-        }
-        return stickerCount;
-    }
-
     private void setNumColumns(int spanCount) {
         if (mLayoutManager.getSpanCount() != spanCount) {
             mLayoutManager.setSpanCount(spanCount);
@@ -547,63 +517,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             mPublishStickerPackTask = null;
         }
         super.onDestroy();
-    }
-
-    /**
-     * 显示下载对话框，不可关闭
-     */
-    private void showDialog() {
-        if (mStickerPack == null) {
-            return;
-        }
-
-        mIsDownloading = true;
-        mDownloadProgressDialog = new WaStickerDialog(this, R.style.CustomDialog, mStickerPack);
-        mDownloadProgressDialog.setCancelable(false);
-        mDownloadProgressDialog.show();
-    }
-
-    /**
-     * 下載Sticker的Callback
-     **/
-    @Override
-    public void onDownloadSuccess(StickerPack pack) {
-        mIsDownloading = false;
-
-        if (WAStickerManager.getInstance().showWhatsAppVersionNotSupportDailogIfNeed(CreateStickerPackDetailActivity.this, CreateStickerPackDetailActivity.this.getSupportFragmentManager())) {
-            return;
-        }
-
-        mPublishStickerPackTask = new WAStickerManager.PublishStickerPackTask(CreateStickerPackDetailActivity.this, mStickerPack, this);
-        mPublishStickerPackTask.execute();
-    }
-
-    @Override
-    public void onUpdateProgress(StickerPack pack) {
-        if (mDownloadProgressDialog == null) {
-            return;
-        }
-        mDownloadProgressDialog.updateProgress(pack.totle, pack.count);
-    }
-
-    @Override
-    public void onDownloadError() {
-        mIsDownloading = false;
-        Toast.makeText(this, "Download error.", Toast.LENGTH_LONG).show();
-        if (mDownloadProgressDialog != null) {
-            mDownloadProgressDialog.dismiss();
-        }
-    }
-
-    /**
-     * 建立Publish StickerPack的Callback
-     **/
-    @Override
-    public void onFinishCreated(StickerPack pack) {
-        addStickerPackToWhatsApp(pack.identifier, pack.name);
-        if (mDownloadProgressDialog != null) {
-            mDownloadProgressDialog.dismiss();
-        }
     }
 
     /**
@@ -679,6 +592,73 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         if (mStickerPack.identifier.equals(searchLocalIdentifier)) {
             WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.SearchLocal);
         }
+    }
+
+    /**
+     * 显示下载对话框，不可关闭
+     */
+    private void showDialog() {
+        if (mStickerPack == null) {
+            return;
+        }
+
+        mIsDownloading = true;
+        mDownloadProgressDialog = new WaStickerDialog(this, R.style.CustomDialog, mStickerPack);
+        mDownloadProgressDialog.setCancelable(false);
+        mDownloadProgressDialog.show();
+    }
+
+    /**
+     * 下載Sticker的Callback
+     **/
+    @Override
+    public void onDownloadSuccess(StickerPack pack) {
+        mIsDownloading = false;
+
+        if (WAStickerManager.getInstance().showWhatsAppVersionNotSupportDailogIfNeed(CreateStickerPackDetailActivity.this, CreateStickerPackDetailActivity.this.getSupportFragmentManager())) {
+            return;
+        }
+
+        mPublishStickerPackTask = new WAStickerManager.PublishStickerPackTask(CreateStickerPackDetailActivity.this, mStickerPack, this);
+        mPublishStickerPackTask.execute();
+    }
+
+    @Override
+    public void onUpdateProgress(StickerPack pack) {
+        if (mDownloadProgressDialog == null) {
+            return;
+        }
+        mDownloadProgressDialog.updateProgress(pack.totle, pack.count);
+    }
+
+    @Override
+    public void onDownloadError() {
+        mIsDownloading = false;
+        Toast.makeText(this, "Download error.", Toast.LENGTH_LONG).show();
+        if (mDownloadProgressDialog != null) {
+            mDownloadProgressDialog.dismiss();
+        }
+    }
+
+    /**
+     * 建立完Publish StickerPack後
+     **/
+    @Override
+    public void onFinishCreated(StickerPack pack) {
+        addStickerPackToWhatsApp(pack.identifier, pack.name);
+        if (mDownloadProgressDialog != null) {
+            mDownloadProgressDialog.dismiss();
+        }
+    }
+
+    /**
+     * 成功加入Wa時
+     **/
+    @Override
+    protected void onSuccessToAddWa() {
+        Intent i = new Intent(this, CreatedStickerPackListActivity.class);
+        startActivity(i);
+        finish();
     }
 
 }

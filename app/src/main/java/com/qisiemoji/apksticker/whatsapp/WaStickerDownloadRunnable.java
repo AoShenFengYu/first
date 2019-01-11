@@ -72,11 +72,8 @@ public class WaStickerDownloadRunnable extends Thread {
         while (errorTimes < ERROR_LIMIT) {
             // 停用stickerPack.trayImageFile，統一固定所有stickerPack.trayImageFile
             File waFile = new File(path + TRAY_IMAGE_NAME + WEBP);
-            //如果icon已经下载，成功计数加一
             if (waFile.exists()) {
-                count++;
-                downloadStatus(totleSize, count);
-                break;
+                waFile.delete();
             }
             //"https://cdn.kikakeyboard.com/navigation/sticker/sticker_store/MikaChristmas/assets/1/file_1.webp"
             file = downloadFile(stickerPack.trayImageFile);
@@ -112,11 +109,8 @@ public class WaStickerDownloadRunnable extends Thread {
 
             // 停用sticker.imageFileName，統一固定所有sticker.imageFileName
             File waFile = new File(path + STICKER_IMAGE_NAME + i + WEBP);
-            //如果sticker已经下载，成功计数加一
             if (waFile.exists()) {
-                count++;
-                downloadStatus(totleSize, count);
-                continue;
+                waFile.delete();
             }
 
             while (errorTimes < ERROR_LIMIT) {

@@ -95,9 +95,9 @@ public class ChooseImageSourceDialogFragment extends BasicDialogFragment impleme
             default:
                 Intent intent = new Intent(getContext(), SelectAlbumStickersActivity.class);
                 intent.putExtra(SelectAlbumStickersActivity.EXTRA_SELECTED_ITEM_MIN, 1);
+                intent.putExtra(SelectAlbumStickersActivity.EXTRA_SELECTED_ITEM_MAX, 1);
                 startActivityForResult(intent, REQUEST_CODE_SELECT_ALBUM_STICKERS);
         }
-
     }
 
     @Override

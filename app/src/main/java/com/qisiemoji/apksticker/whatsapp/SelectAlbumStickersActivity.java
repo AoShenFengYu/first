@@ -38,6 +38,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
     public static final int RESULT_CODE_FINISH_SELECT = 111;
     public static final String EXTRA_SELECTED_LIST = "selected_list";
     public static final String EXTRA_SELECTED_ITEM_MIN = "selected_item_min";
+    public static final String EXTRA_SELECTED_ITEM_MAX = "selected_item_max";
 
     private static final int SELECTED_ITEM_MIN = 4; // FIXME current include icon
     private static final int SELECTED_ITEM_MAX = 31; // FIXME current include icon
@@ -52,6 +53,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
     private ArrayList<StickerItem> mAllItems = new ArrayList<>();
     private ArrayList<String> mSelectedImageUrls = new ArrayList<>();
     private int mSelectedIteMin;
+    private int mSelectedIteMax;
 
     private interface ScanStickersCallback {
         void onFinishScan(ArrayList<StickerItem> items);
@@ -68,7 +70,20 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
                 stickerItem.check = false;
                 mSelectedImageUrls.remove(stickerItem.imageUrl);
                 mSelectStickerAdapter.notifyItemChanged(stickerItem.index);
-            } else if (mSelectedImageUrls.size() < SELECTED_ITEM_MAX) {
+            } else if (mSelectedImageUrls.size() < mSelectedIteMax) {
+                stickerItem.check = true;
+                mSelectedImageUrls.add(stickerItem.imageUrl);
+                mSelectStickerAdapter.notifyItemChanged(stickerItem.index);
+            } else if (mSelectedIteMax == 1) {
+                for (StickerItem unselectedItem : mAllItems) {
+                    if (unselectedItem.check) {
+                        unselectedItem.check = false;
+                        mSelectedImageUrls.remove(unselectedItem.imageUrl);
+                        mSelectStickerAdapter.notifyItemChanged(unselectedItem.index);
+                        break;
+                    }
+                }
+
                 stickerItem.check = true;
                 mSelectedImageUrls.add(stickerItem.imageUrl);
                 mSelectStickerAdapter.notifyItemChanged(stickerItem.index);
@@ -83,6 +98,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
         setContentView(R.layout.activity_select_album_sticker);
 
         mSelectedIteMin = getIntent().getExtras().getInt(EXTRA_SELECTED_ITEM_MIN, SELECTED_ITEM_MIN);
+        mSelectedIteMax = getIntent().getExtras().getInt(EXTRA_SELECTED_ITEM_MAX, SELECTED_ITEM_MAX);
 
         GridLayoutManager manager = new GridLayoutManager(this, 4);
         mSelectStickerAdapter = new SelectStickerAdapter(this, mAllItems, mSelectStickerItemCallback);
@@ -131,7 +147,7 @@ public class SelectAlbumStickersActivity extends AddStickerPackActivity {
             mDone.setEnabled(true);
             mDone.setTextColor(Color.parseColor("#0DB4AD"));
         }
-        mDone.setText("Done(" + mSelectedImageUrls.size() + "/" + SELECTED_ITEM_MAX + ")");
+        mDone.setText("Done(" + mSelectedImageUrls.size() + "/" + mSelectedIteMax + ")");
     }
 
     static class StickerItem {
