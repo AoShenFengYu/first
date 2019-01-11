@@ -439,7 +439,6 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
     private ImageView createStickerPack;
     private RecyclerView bottomRecyclerView;
     private SelectStickerAdapter mSelectStickerAdapter;
-    private WAStickerManager.PublishStickerPackTask mPublishStickerPackTask;
     private StickerPack mStickerPack;
     private String mPackName;
     private String mAuthor;

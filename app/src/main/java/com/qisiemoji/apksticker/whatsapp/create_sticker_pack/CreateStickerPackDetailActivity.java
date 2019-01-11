@@ -43,7 +43,7 @@ import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST
 /**
  * 新版sticker详情页，支持浏览、新建pack、修改pack的功能
  */
-public class CreateStickerPackDetailActivity extends AddStickerPackActivity implements CreateStickerPackDetailHandler.Callback, ChooseImageSourceDialogFragment.ChooseImageSourceDialogFragmentCallback {
+public class CreateStickerPackDetailActivity extends AddStickerPackActivity implements CreateStickerPackDetailHandler.Callback, ChooseImageSourceDialogFragment.ChooseImageSourceDialogFragmentCallback, WAStickerManager.CreateStickerPackTaskCallback {
 
     /**
      * 空字串
@@ -220,16 +220,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     private WhiteListCheckAsyncTask mWhiteListCheckAsyncTask;
 
     /**
-     * Task of adding sticker to wa
-     **/
-    private WAStickerManager.CreateStickerPackTaskCallback mCreateStickerPackTaskCallback = new WAStickerManager.CreateStickerPackTaskCallback() {
-        @Override
-        public void onFinishCreated(StickerPack pack) {
-            addStickerPackToWhatsApp(pack.identifier, pack.name);
-        }
-    };
-
-    /**
      * Download Sticker
      **/
     private CreateStickerPackDetailHandler mHandler;
@@ -263,14 +253,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         mAddToWaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (WAStickerManager.getInstance().showWhatsAppVersionNotSupportDailogIfNeed(CreateStickerPackDetailActivity.this, CreateStickerPackDetailActivity.this.getSupportFragmentManager())) {
-//                    return;
-//                }
-//
-//                WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Publish);
-//                mPublishStickerPackTask = new WAStickerManager.PublishStickerPackTask(CreateStickerPackDetailActivity.this, mStickerPack, mCreateStickerPackTaskCallback);
-//                mPublishStickerPackTask.execute();
-
                 if (mIsDownloading || mStickerPack == null) {
                     return;
                 }
@@ -325,6 +307,10 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             mStickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
             mPackName = mStickerPack.name;
             mAuthor = mStickerPack.publisher;
+
+            if (TextUtils.isEmpty(mStickerPack.trayImageFile)) {
+                mStickerPack.trayImageFile = mStickerPack.stickers.get(0).imageFileUrl;
+            }
 
         } else if (intent.hasExtra(EXTRA_STICKER_PACK_DATA)) {
             // edit
@@ -381,9 +367,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         if (mStickerPack == null) {
             return;
         }
-        Log.e("AAAAA", "AA=" + mStickerPack.trayImageFile);
-        Log.e("AAAAA", "ＢＢ=" + StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile));
-        Log.e("AAAAA", "cc=" + mStickerPack.trayImageUrl);
 
         Glide.with(mPackTrayImageView.getContext())
                 .load(StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile))
@@ -565,15 +548,19 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     }
 
     /**
-     * CreateStickerPackDetailHandler 's Callback
+     * 下載Sticker的Callback
      **/
     @Override
     public void onDownloadSuccess(StickerPack pack) {
         mIsDownloading = false;
-        addStickerPackToWhatsApp(pack.identifier, pack.name);
-        if (mDownloadProgressDialog != null) {
-            mDownloadProgressDialog.dismiss();
+
+        if (WAStickerManager.getInstance().showWhatsAppVersionNotSupportDailogIfNeed(CreateStickerPackDetailActivity.this, CreateStickerPackDetailActivity.this.getSupportFragmentManager())) {
+            return;
         }
+
+        WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Publish);
+        mPublishStickerPackTask = new WAStickerManager.PublishStickerPackTask(CreateStickerPackDetailActivity.this, mStickerPack, this);
+        mPublishStickerPackTask.execute();
     }
 
     @Override
@@ -588,6 +575,17 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     public void onDownloadError() {
         mIsDownloading = false;
         Toast.makeText(this, "Download error.", Toast.LENGTH_LONG).show();
+        if (mDownloadProgressDialog != null) {
+            mDownloadProgressDialog.dismiss();
+        }
+    }
+
+    /**
+     * 建立Publish StickerPack的Callback
+     **/
+    @Override
+    public void onFinishCreated(StickerPack pack) {
+        addStickerPackToWhatsApp(pack.identifier, pack.name);
         if (mDownloadProgressDialog != null) {
             mDownloadProgressDialog.dismiss();
         }
@@ -658,4 +656,5 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
         WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
     }
+
 }
