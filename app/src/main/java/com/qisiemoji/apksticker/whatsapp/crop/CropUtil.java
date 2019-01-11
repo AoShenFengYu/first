@@ -16,6 +16,7 @@
 
 package com.qisiemoji.apksticker.whatsapp.crop;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -29,6 +30,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.qisiemoji.apksticker.whatsapp.create_sticker_pack.EditActivity;
 import com.qisiemoji.apksticker.whatsapp.gifpick.GifPickActivity;
 
 import java.io.Closeable;
@@ -179,6 +181,15 @@ public class CropUtil {
         new Thread(new BackgroundJob1(activity, job, dialog, handler)).start();
     }
 
+    public static void startBackgroundJob(EditActivity activity,
+                                          String title, String message, Runnable job, Handler handler) {
+        // Make the progress dialog uncancelable, so that we can guarantee
+        // the thread will be done before the activity getting destroyed
+        ProgressDialog dialog = ProgressDialog.show(
+                activity, title, message, true, false);
+        new Thread(new BackgroundJob1(activity, job, dialog, handler)).start();
+    }
+
     private static class BackgroundJob extends MonitoredActivity.LifeCycleAdapter implements Runnable {
 
         private final MonitoredActivity activity;
@@ -230,7 +241,7 @@ public class CropUtil {
 
     private static class BackgroundJob1 extends MonitoredActivity.LifeCycleAdapter implements Runnable {
 
-        private final GifPickActivity activity;
+//        private final GifPickActivity activity;
         private final ProgressDialog dialog;
         private final Runnable job;
         private final Handler handler;
@@ -241,9 +252,9 @@ public class CropUtil {
             }
         };
 
-        public BackgroundJob1(GifPickActivity activity, Runnable job,
-                             ProgressDialog dialog, Handler handler) {
-            this.activity = activity;
+        public BackgroundJob1(Activity activity, Runnable job,
+                              ProgressDialog dialog, Handler handler) {
+//            this.activity = activity;
             this.dialog = dialog;
             this.job = job;
 //            this.activity.addLifeCycleListener(this);

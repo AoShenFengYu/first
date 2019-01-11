@@ -71,6 +71,11 @@
         </activity>
 
         <activity
+            android:name=".whatsapp.create_sticker_pack.EditActivity"
+            android:label="@string/title_activity_sticker_packs_list">
+        </activity>
+
+        <activity
             android:name=".whatsapp.create_sticker_pack.CreateStickerPackDetailActivity"
             android:label="@string/title_activity_sticker_packs_list" />
 
