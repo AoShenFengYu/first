@@ -98,7 +98,7 @@ public class StickerContentProvider extends ContentProvider {
         MATCHER.addURI(authority, STICKERS + "/*", STICKERS_CODE);
 
         for (StickerPack stickerPack : getStickerPackList()) {
-             MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + stickerPack.trayImageFile, STICKER_PACK_TRAY_ICON_CODE);
+             MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + stickerPack.trayImageUrl, STICKER_PACK_TRAY_ICON_CODE);
              for (Sticker sticker : stickerPack.getStickers()) {
                  MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + sticker.imageFileName, STICKERS_ASSET_CODE);
              }
@@ -113,7 +113,7 @@ public class StickerContentProvider extends ContentProvider {
         }
 
         final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
-        MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + stickerPack.trayImageFile, STICKER_PACK_TRAY_ICON_CODE);
+        MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + stickerPack.trayImageUrl, STICKER_PACK_TRAY_ICON_CODE);
         for (Sticker sticker : stickerPack.getStickers()) {
             MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + sticker.imageFileName, STICKERS_ASSET_CODE);
         }
@@ -122,7 +122,7 @@ public class StickerContentProvider extends ContentProvider {
     public static void addWaStickerPackToMatcher( List<StickerPack> stickerPacks) {
         final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
         for (StickerPack stickerPack : stickerPacks) {
-            MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + stickerPack.trayImageFile, STICKER_PACK_TRAY_ICON_CODE);
+            MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + stickerPack.trayImageUrl, STICKER_PACK_TRAY_ICON_CODE);
             for (Sticker sticker : stickerPack.getStickers()) {
                 MATCHER.addURI(authority, STICKERS_ASSET + "/" + stickerPack.identifier + "/" + sticker.imageFileName, STICKERS_ASSET_CODE);
             }
@@ -264,7 +264,7 @@ public class StickerContentProvider extends ContentProvider {
             builder.add(stickerPack.identifier);
             builder.add(stickerPack.name);
             builder.add(stickerPack.publisher);
-            builder.add(stickerPack.trayImageFile);
+            builder.add(stickerPack.trayImageUrl);
             builder.add(stickerPack.androidPlayStoreLink);
             builder.add(stickerPack.iosAppStoreLink);
             builder.add(stickerPack.publisherEmail);
@@ -308,7 +308,7 @@ public class StickerContentProvider extends ContentProvider {
         //making sure the file that is trying to be fetched is in the list of stickers.
         for (StickerPack stickerPack : getStickerPackList()) {
             if (identifier.equals(stickerPack.identifier)) {
-                if (fileName.equals(stickerPack.trayImageFile)) {
+                if (fileName.equals(stickerPack.trayImageUrl)) {
                     return fetchFile(uri, am, fileName, identifier);
                 } else {
                     for (Sticker sticker : stickerPack.getStickers()) {
@@ -340,7 +340,7 @@ public class StickerContentProvider extends ContentProvider {
         //making sure the file that is trying to be fetched is in the list of stickers.
         for (StickerPack stickerPack : getStickerPackList()) {
             if (identifier.equals(stickerPack.identifier)) {
-                if (fileName.equals(stickerPack.trayImageFile)) {
+                if (fileName.equals(stickerPack.trayImageUrl)) {
                     return fetchParcelFile(uri,fileName, identifier);
                 } else {
                     for (Sticker sticker : stickerPack.getStickers()) {

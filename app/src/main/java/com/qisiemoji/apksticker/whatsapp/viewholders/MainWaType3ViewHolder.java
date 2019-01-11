@@ -66,13 +66,13 @@ public class MainWaType3ViewHolder extends BaseWaMainViewHolder<StickerPack> {
         container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
-//                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
-//                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
-//                view.getContext().startActivity(intent);
-
-                Intent intent = CreateStickerPackDetailActivity.preview(view.getContext(), pack);
+                Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
+                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
+                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
                 view.getContext().startActivity(intent);
+
+//                Intent intent = CreateStickerPackDetailActivity.preview(view.getContext(), pack);
+//                view.getContext().startActivity(intent);
             }
         });
         imageRowView.removeAllViews();

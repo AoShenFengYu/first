@@ -89,8 +89,8 @@ public class StickerPackLoader {
                 + File.separator + stickerPack.identifier) + File.separator;
         if (!BuildConfig.IS_CONTAINS_ASSET) {
             //copy trayimage
-            File file = new File(path + stickerPack.trayImageFile);
-            assetsToFile(context, stickerPack.identifier + "/" + stickerPack.trayImageFile, file);
+            File file = new File(path + stickerPack.trayImageUrl);
+            assetsToFile(context, stickerPack.identifier + "/" + stickerPack.trayImageUrl, file);
         }
         for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);

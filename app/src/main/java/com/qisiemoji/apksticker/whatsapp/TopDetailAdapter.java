@@ -46,7 +46,7 @@ public class TopDetailAdapter extends RecyclerView.Adapter<TopDetailViewHolder>{
 
     @Override
     public void onBindViewHolder(TopDetailViewHolder holder, final int position) {
-        Glide.with(context).load(dataSet.get(position).trayImageUrl).into(holder.img);
+        Glide.with(context).load(dataSet.get(position).trayImageFile).into(holder.img);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

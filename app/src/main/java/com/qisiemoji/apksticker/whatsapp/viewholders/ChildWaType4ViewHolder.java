@@ -53,12 +53,12 @@ public class ChildWaType4ViewHolder extends BaseWaChildViewHolder<StickerPack>  
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
-//                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
-//                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, entity);
-//                view.getContext().startActivity(intent);
-                Intent intent = CreateStickerPackDetailActivity.preview(view.getContext(), entity);
+                Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
+                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
+                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, entity);
                 view.getContext().startActivity(intent);
+//                Intent intent = CreateStickerPackDetailActivity.preview(view.getContext(), entity);
+//                view.getContext().startActivity(intent);
             }
         });
         title.setText(item.name);
@@ -66,7 +66,7 @@ public class ChildWaType4ViewHolder extends BaseWaChildViewHolder<StickerPack>  
         adImg.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         Glide.with(context)
-                .load(item.trayImageUrl)
+                .load(item.trayImageFile)
                 .listener(new RequestListener<String, GlideDrawable>() {
 
                     @Override

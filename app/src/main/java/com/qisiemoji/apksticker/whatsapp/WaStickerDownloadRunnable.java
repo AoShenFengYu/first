@@ -263,7 +263,9 @@ public class WaStickerDownloadRunnable extends Thread {
 
         // center inside bmp
         Bitmap targetBmp = getCenterInsideBitmap(originalBmp, WA_WEB_IMAGE_WIDTH, WA_WEB_IMAGE_HEIGHT);
-
+        if(targetBmp == null){
+            return 0;
+        }
         // check file size
         // from 100 to check, subtract 5 every time
         int compressQuality = 105;
@@ -289,6 +291,9 @@ public class WaStickerDownloadRunnable extends Thread {
     }
 
     private Bitmap getCenterInsideBitmap(Bitmap inputBmp, int targetWidth, int targetHeight) {
+        if(inputBmp == null){
+            return null;
+        }
         // scale bmp in 512*512 region
         float scale = Math.min(1f * targetWidth / inputBmp.getWidth(), 1f * targetHeight / inputBmp.getHeight());
         Bitmap scaleBmp = getScaleBitmap(inputBmp, scale);

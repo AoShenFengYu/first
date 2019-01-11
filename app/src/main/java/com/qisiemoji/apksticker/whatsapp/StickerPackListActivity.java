@@ -200,7 +200,7 @@ public class StickerPackListActivity extends AddStickerPackActivity implements I
         Sticker sticker = null;
 
         for(StickerPack pack:stickerPacks){
-            pack.trayImageFile = "tryImage"+pack.trayImageFile.substring(pack.trayImageFile.lastIndexOf("."));
+            pack.trayImageUrl = "file.webp";
             if(pack.stickers == null){
                 continue;
             }

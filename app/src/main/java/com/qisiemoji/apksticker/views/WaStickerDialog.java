@@ -53,7 +53,7 @@ public class WaStickerDialog extends Dialog{
         progressBar = rootView.findViewById(R.id.dialog_download_sticker_progress_bar);
         title = rootView.findViewById(R.id.dialog_download_sticker_progress_title);
         Glide.with(context)
-                .load(stickerPack.trayImageUrl)
+                .load(stickerPack.trayImageFile)
                 .into(iconView);
         title.setText(TextUtils.isEmpty(stickerPack.name) ? "" : stickerPack.name);
         int max = stickerPack.stickers.size() > MAX_WA_STICKER ? MAX_WA_STICKER + 1 : stickerPack.stickers.size() + 1;
