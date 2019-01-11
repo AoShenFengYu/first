@@ -25,19 +25,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/expend"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_alignParentEnd="true"
-                android:scaleType="center"
-                android:src="@drawable/ic_more" />
-
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/stickerpack"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_toLeftOf="@id/expend"
                 android:fontFamily="sans-serif"
                 android:hint="@string/create_pack_dialog_name_hint"
                 android:singleLine="true"
@@ -58,14 +49,6 @@
                 android:hint="@string/create_pack_dialog_author_hint"
                 android:singleLine="true"
                 android:textSize="17sp" />
-
-            <ImageView
-                android:id="@+id/clear_author"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_alignParentEnd="true"
-                android:scaleType="center"
-                android:src="@drawable/ic_text_delete" />
 
         </RelativeLayout>
 

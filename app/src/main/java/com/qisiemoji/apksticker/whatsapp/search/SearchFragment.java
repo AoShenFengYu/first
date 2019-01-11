@@ -41,6 +41,7 @@ import com.qisiemoji.apksticker.recyclerview.ptr.listener.IRefreshListener;
 import com.qisiemoji.apksticker.recyclerview.refresh.CustomRefreshFrameLayout;
 import com.qisiemoji.apksticker.whatsapp.Sticker;
 import com.qisiemoji.apksticker.whatsapp.StickerPack;
+import com.qisiemoji.apksticker.whatsapp.create_sticker_pack.CreateStickerPackDetailActivity;
 import com.qisiemoji.apksticker.whatsapp.gifpick.GifPickActivity;
 import com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager;
 
@@ -175,7 +176,8 @@ public class SearchFragment extends Fragment implements IRefreshListener, View.O
         createStickerPack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO create sticker pack or publish
+                Intent intent = CreateStickerPackDetailActivity.edit(getContext(), mStickerPack);
+                getContext().startActivity(intent);
             }
         });
 
