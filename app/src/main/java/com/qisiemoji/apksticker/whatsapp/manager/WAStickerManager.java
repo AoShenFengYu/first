@@ -297,7 +297,6 @@ public class WAStickerManager {
 
         private static final String FILE_ = "file_";
         private static final String WEBP = ".webp";
-        private static final String TRAY_IMAGE_FILE_NAME = "file.webp";
 
         private WeakReference<Context> contextRef;
         private CreateStickerPackTaskCallback callback;
@@ -319,15 +318,21 @@ public class WAStickerManager {
             String identifierFolderPath = FileUtils2.getFileDir(context, StickerContentProvider.STICKERS_FILE
                     + File.separator + stickerPack.identifier) + File.separator;
             String srcTrayImageUrl = stickerPack.trayImageFile;
+            String trayImagePath = identifierFolderPath + StickerPack.TRAY_IMAGE_FILE_NAME;
+
             if (srcTrayImageUrl != null) {
-                String trayImagePath = identifierFolderPath + TRAY_IMAGE_FILE_NAME;
                 File trayImageFile = new File(trayImagePath);
+                // WaStickerDownloadRunnable會轉webp
                 if (!trayImageFile.exists()) {
                     generateWebp(srcTrayImageUrl, trayImagePath, MAX_ICON_SIZE);
                 }
             }
 
             for (int index = 0; index < stickerPack.stickers.size(); index++) {
+                if(stickers.size() == 30){
+                    break;
+                }
+
                 String srcStickerUrl = stickerPack.stickers.get(index).getImageFileUrl();
                 if (TextUtils.isEmpty(srcStickerUrl)) {
                     continue;
@@ -338,6 +343,7 @@ public class WAStickerManager {
                 File file = new File(filePath);
                 long fileSize;
 
+                // WaStickerDownloadRunnable會轉webp
                 if (!file.exists()) {
                     fileSize = generateWebp(srcStickerUrl, filePath, MAX_STICKER_SIZE);
                 } else {
@@ -350,8 +356,14 @@ public class WAStickerManager {
                 stickers.add(sticker);
             }
 
-            StickerPack pack = new StickerPack(stickerPack.identifier, stickerPack.name, stickerPack.publisher, TRAY_IMAGE_FILE_NAME, "", "", "", "");
+            // 補齊至少三張貼圖
+            fillOutStickers(identifierFolderPath, stickers);
+
+            StickerPack pack = new StickerPack(stickerPack.identifier, stickerPack.name, stickerPack.publisher, trayImagePath, "", "", "", "");
             pack.setStickers(stickers);
+            // trayImageFile 統一為 TRAY_IMAGE_FILE_NAME
+            pack.trayImageUrl = "file.webp";
+            pack.trayImageFile = trayImagePath;
             pack.androidPlayStoreLink = GP_URL;
 
             // manager in file
@@ -360,6 +372,25 @@ public class WAStickerManager {
             // add pack info to StickerContentProvider's MATCHER
             StickerContentProvider.addStickerPackToMatcher(pack);
             return pack;
+        }
+
+        /**
+         * 把貼圖補齊成三張貼圖
+         **/
+        private void fillOutStickers(String identifierFolderPath, List<Sticker> stickers) {
+            if (stickers.size() == 0) {
+                return;
+            }
+            Sticker first = stickers.get(0);
+            if (stickers.size() < 3) {
+                for (int i = stickers.size(); i < 3; i++) {
+                    String fileName = FILE_ + String.valueOf(i) + WEBP;
+                    Sticker sticker = new Sticker(first.imageFileName, new ArrayList<String>());
+                    sticker.setSize(first.getSize());
+                    sticker.setImageFileUrl(first.getImageFileUrl());
+                    stickers.add(sticker);
+                }
+            }
         }
 
         @Override
