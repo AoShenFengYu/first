@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <com.qisiemoji.apksticker.whatsapp.crop.GifPickImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitXY"
+        android:background="#000000"
+        android:visibility="gone"
+        android:id="@+id/gifpick_crop_img"/>
+
+    <FrameLayout
+        android:id="@+id/edit_image_container"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:background="#000000"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/edit_image_view_base"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:background="@android:color/transparent"/>
+
+        <com.qisiemoji.apksticker.whatsapp.edit.EditImageLayout
+            android:id="@+id/edit_image"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"/>
+    </FrameLayout>
+
+
+
+    <TextView
+        android:id="@+id/gifpick_add"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:text="ADD TO GROUP"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="#88dc98"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"/>
+
+    <LinearLayout
+        android:id="@+id/gifpick_func_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:weightSum="3"
+        android:layout_above="@id/gifpick_add">
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_more"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/gifpick_recovery"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_more"
+            android:layout_centerVertical="true"
+            android:id="@+id/gifpick_add_text"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_more"
+            android:layout_toRightOf="@id/gifpick_recovery"
+            android:id="@+id/gifpick_random_text"/>
+
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_below="@id/gifpick_crop_img"
+        android:layout_above="@id/gifpick_func_layout"
+        android:id="@+id/gifpick_recycleview"
+        android:layout_width="match_parent"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:paddingTop="2dp"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="50dp"
+        android:scrollbars="vertical" />
+
+    <RelativeLayout
+        android:id="@+id/edit_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/edit_image_container"
+        android:clickable="true"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white">
+
+        <RelativeLayout
+            android:id="@+id/enter_text_container"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/darker_gray">
+
+            <ImageView
+                android:id="@+id/finish_add_text"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/ic_more"/>
+
+            <EditText
+                android:id="@+id/enter_text"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_toLeftOf="@id/finish_add_text"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_centerVertical="true"
+                android:background="@android:color/white"
+                />
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:id="@+id/color_selectors"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_above="@id/enter_text_container"
+            android:orientation="horizontal"
+            android:weightSum="7"
+            android:background="@android:color/darker_gray"
+            >
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_1"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_2"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_3"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_4"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_5"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_6"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.qisiemoji.apksticker.whatsapp.edit.widget.CircleColorImageView
+                    android:id="@+id/color_7"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    />
+            </FrameLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+</RelativeLayout>

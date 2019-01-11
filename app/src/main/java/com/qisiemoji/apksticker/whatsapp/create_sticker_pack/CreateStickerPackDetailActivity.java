@@ -32,12 +32,15 @@ import com.qisiemoji.apksticker.whatsapp.StickerPack;
 import com.qisiemoji.apksticker.whatsapp.StickerPackLoader;
 import com.qisiemoji.apksticker.whatsapp.WaStickerDownloadRunnable;
 import com.qisiemoji.apksticker.whatsapp.fragment.ChooseImageSourceDialogFragment;
+import com.qisiemoji.apksticker.whatsapp.gifpick.GifPickActivity;
 import com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_SELECTED_LIST;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST_CODE_PERMISSION_STORAGE;
+import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.RESULT_CODE_FINISH_EDIT_IMAGE;
 
 /**
  * 新版sticker详情页，支持浏览、新建pack、修改pack的功能
@@ -343,7 +346,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         }
 
         searchLocalIdentifier = WAStickerManager.getInstance().getSearchLocalIdentifier(getApplicationContext());
-        Log.d("willy", "searchLocalIdentifier : " + searchLocalIdentifier);
     }
 
     /**
@@ -485,6 +487,9 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             if (mStickerPack.identifier.equals(searchLocalIdentifier)) {
                 WAStickerManager.getInstance().delete(getApplicationContext(), WAStickerManager.FileStickerPackType.SearchLocal);
             }
+        } else if (requestCode == 1 && resultCode == RESULT_CODE_FINISH_EDIT_IMAGE) {
+            ArrayList<String> list = data.getStringArrayListExtra(EXTRA_SELECTED_LIST);
+            handleReceivedImagePaths(list);
         }
     }
 
@@ -615,7 +620,13 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
      **/
     @Override
     public void onGetImagePathFromOutside(ArrayList<String> imagePaths) {
-        handleReceivedImagePaths(imagePaths);
+
+
+        Intent intent = new Intent(CreateStickerPackDetailActivity.this, EditActivity.class);
+        intent.putExtra("selected_url", imagePaths.get(0));
+        startActivityForResult(intent, 1);
+
+//        handleReceivedImagePaths(imagePaths);
     }
 
     private void handleReceivedImagePaths(ArrayList<String> imagePaths) {
