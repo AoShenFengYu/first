@@ -223,9 +223,7 @@ public class GifPickActivity extends AppCompatActivity implements View.OnClickLi
             }
             LinkedList<GifPickItem> list = new LinkedList<>();
             int mod = gd.getFrameCount() / 20;
-            if (mod <= 0) {
-                mod = 1;
-            }
+            mod++;
             for (int i = 0; i < gd.getFrameCount(); i++) {
                 if (i % mod == 0) {
                     // FIXME for crop view, we sync the bitmap size as 1:1
