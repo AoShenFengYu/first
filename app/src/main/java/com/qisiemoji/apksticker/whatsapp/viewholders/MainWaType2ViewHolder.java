@@ -64,7 +64,7 @@ public class MainWaType2ViewHolder extends BaseWaMainViewHolder<StickerPack> {
                 if (stickerPack == null) {
                     intent = CreateStickerPackDetailActivity.create(context, packName, author);
                 } else {
-                    intent = CreateStickerPackDetailActivity.edit(context, stickerPack, false);
+                    intent = CreateStickerPackDetailActivity.edit(context, stickerPack);
                 }
                 context.startActivity(intent);
             }

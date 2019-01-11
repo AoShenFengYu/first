@@ -23,6 +23,7 @@ import com.qisiemoji.apksticker.R;
 import com.qisiemoji.apksticker.util.DensityUtil;
 import com.qisiemoji.apksticker.whatsapp.StickerPack;
 import com.qisiemoji.apksticker.whatsapp.StickerPackDetailsActivity;
+import com.qisiemoji.apksticker.whatsapp.create_sticker_pack.CreateStickerPackDetailActivity;
 
 public class MainWaType3ViewHolder extends BaseWaMainViewHolder<StickerPack> {
 
@@ -65,9 +66,12 @@ public class MainWaType3ViewHolder extends BaseWaMainViewHolder<StickerPack> {
         container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
-                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
-                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
+//                Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
+//                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
+//                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
+//                view.getContext().startActivity(intent);
+
+                Intent intent = CreateStickerPackDetailActivity.preview(view.getContext(), pack);
                 view.getContext().startActivity(intent);
             }
         });

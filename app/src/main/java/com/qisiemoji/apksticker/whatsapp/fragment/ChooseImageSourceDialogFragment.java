@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.content.PermissionChecker;
+import android.util.Log;
 import android.view.View;
 
 import com.qisiemoji.apksticker.R;
@@ -64,6 +65,9 @@ public class ChooseImageSourceDialogFragment extends BasicDialogFragment impleme
         mGiphy.setOnClickListener(this);
         mTakePhoto.setOnClickListener(this);
         mGallery.setOnClickListener(this);
+
+        setCanceledOnTouchOutside(true);
+        setCancelable(true);
     }
 
     @Override
@@ -85,6 +89,7 @@ public class ChooseImageSourceDialogFragment extends BasicDialogFragment impleme
                 intent.putExtra(SelectAlbumStickersActivity.EXTRA_SELECTED_ITEM_MIN, 1);
                 startActivityForResult(intent, REQUEST_CODE_SELECT_ALBUM_STICKERS);
         }
+
     }
 
     @Override
@@ -104,18 +109,20 @@ public class ChooseImageSourceDialogFragment extends BasicDialogFragment impleme
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.e("AAAA", "onActivityResult " + requestCode + " " + resultCode);
+
         switch (requestCode) {
-            case REQUEST_CODE_SELECT_ALBUM_STICKERS:
+            case REQ_CAPTURE_PIC:
                 if (resultCode != Activity.RESULT_OK) {
                     return;
                 }
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
                 // TODO: 取得路徑
-                mChooseImageSourceDialogFragmentCallback.onGetImagePathFromOutside(new ArrayList<String>());
-
+                onCallback(new ArrayList<String>());
                 break;
 
-            case REQ_CAPTURE_PIC:
+            case REQUEST_CODE_SELECT_ALBUM_STICKERS:
                 if (resultCode != RESULT_CODE_FINISH_EDIT_IMAGE) {
                     return;
                 }
@@ -124,10 +131,15 @@ public class ChooseImageSourceDialogFragment extends BasicDialogFragment impleme
                 if (list == null) {
                     list = new ArrayList<>();
                 }
-
-                mChooseImageSourceDialogFragmentCallback.onGetImagePathFromOutside(list);
+                onCallback(list);
                 break;
         }
+
+    }
+
+    private void onCallback(ArrayList<String> imagePaths) {
+        mChooseImageSourceDialogFragmentCallback.onGetImagePathFromOutside(imagePaths);
+        dismiss();
     }
 
     private void onCameraPermissionGranted() {
