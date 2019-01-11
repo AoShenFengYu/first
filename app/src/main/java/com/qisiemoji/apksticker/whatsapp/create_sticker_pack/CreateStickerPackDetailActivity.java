@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,9 +15,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +38,6 @@ import com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.EXTRA_SELECTED_LIST;
 import static com.qisiemoji.apksticker.whatsapp.manager.WAStickerManager.REQUEST_CODE_PERMISSION_STORAGE;
 
 /**
@@ -61,6 +63,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     private static final String EXTRA_STICKER_PACK_DATA = "sticker_pack";
     private static final String EXTRA_STICKER_PACK_AUTHOR = "author";
     private static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
+    private static final String EXTRA_PREVIEW = "preview";
 
     /**
      * 建立Intent
@@ -72,20 +75,31 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         return intent;
     }
 
-    public static Intent edit(Context context, StickerPack stickerPack, boolean isButtonShownUp) {
+    public static Intent edit(Context context, StickerPack stickerPack) {
         Intent intent = new Intent(context, CreateStickerPackDetailActivity.class);
         intent.putExtra(EXTRA_STICKER_PACK_DATA, stickerPack);
-        intent.putExtra(EXTRA_SHOW_UP_BUTTON, isButtonShownUp);
+        intent.putExtra(EXTRA_SHOW_UP_BUTTON, false);
+        return intent;
+    }
+
+    public static Intent preview(Context context, StickerPack stickerPack) {
+        Intent intent = new Intent(context, CreateStickerPackDetailActivity.class);
+        intent.putExtra(EXTRA_STICKER_PACK_DATA, stickerPack);
+        intent.putExtra(EXTRA_SHOW_UP_BUTTON, true);
+        intent.putExtra(EXTRA_PREVIEW, true);
+
         return intent;
     }
 
     /**
      * Icon
      **/
+    private ImageView mPackTrayImageBG;
+    private ImageView mPackTrayImageView;
     private TextView mPackNameTextView;
     private TextView mPackPublisherTextView;
-    private ImageView mPackTrayIcon;
     private TextView mPackSizeTextView;
+
 
     /**
      * Add to wa
@@ -138,12 +152,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             showDialogFragment();
         }
 
-        private void showDialogFragment() {
-            ChooseImageSourceDialogFragment fragment = ChooseImageSourceDialogFragment.newInstance();
-            fragment.setCallBack( CreateStickerPackDetailActivity.this);
-            FragmentUtil.showDialogFragment( CreateStickerPackDetailActivity.this.getSupportFragmentManager(), fragment, ChooseImageSourceDialogFragment.DIALOG_FRAGMENT);
-        }
-
         @Override
         public void onClickEdit(int index, StickerItem item) {
             ArrayList<String> urls = new ArrayList<>();
@@ -177,13 +185,18 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
                     currentItem.setImageUrl(nextItem.getImageUrl());
                     currentSticker.setImageFileUrl(nextSticker.getImageFileUrl());
                 }
+
+                if (i == 0) {
+                    // 如果在更新第一個item，那麼連Icon也要更新
+                    mStickerPack.trayImageFile = currentItem.getImageUrl();
+                }
             }
 
-            mAdapter.notifyItemRangeChanged(index, mAdapter.getItemCount() - 1);
+            updateList(index);
             WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
             WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
-            setCanPublish(isValidContent(), false);
         }
+
     };
 
     private RecyclerView mRecyclerView;
@@ -198,6 +211,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     private String mPackName;
     private String mAuthor;
     private boolean mIsButtonShownUp;
+    private boolean mIsPreview;
     private ArrayList<StickerItem> mAllItems = new ArrayList<>();
 
     /**
@@ -232,31 +246,14 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         settingList();
         settingDownloader();
 
+        initStickerPack();
+
         askForStoragePermission();
     }
 
     private void settingDownloader() {
         mHandler = new CreateStickerPackDetailHandler(this);
 
-    }
-
-    private void updateIcon() {
-        mPackNameTextView.setText(mPackName);
-        mPackPublisherTextView.setText(mAuthor);
-
-        if (mStickerPack == null) {
-            return;
-        }
-
-        Glide.with(mPackTrayIcon.getContext())
-                .load(StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile))
-                .placeholder(R.drawable.bg_create_sticker_pack_detail_item)
-                .dontTransform()
-                .dontAnimate()
-                .into(mPackTrayIcon);
-
-//        mPackTrayIcon.setImageURI(StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile));
-//        mPackSizeTextView.setText(Formatter.formatShortFileSize(this, mStickerPack.getTotalSize()));
     }
 
     private void settingButton() {
@@ -287,9 +284,10 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
     }
 
     private void settingIcon() {
+        mPackTrayImageBG = findViewById(R.id.tray_image_bg);
+        mPackTrayImageView = findViewById(R.id.tray_image);
         mPackNameTextView = findViewById(R.id.pack_name);
         mPackPublisherTextView = findViewById(R.id.author);
-        mPackTrayIcon = findViewById(R.id.tray_image);
         mPackSizeTextView = findViewById(R.id.pack_size);
     }
 
@@ -311,21 +309,8 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    @Override
-    protected void onDestroy() {
-        if (mPublishStickerPackTask != null) {
-            mPublishStickerPackTask.cancel(true);
-            mPublishStickerPackTask = null;
-        }
-
-        super.onDestroy();
-    }
-
     private void onStoragePermissionGranted() {
-        initStickerPack();
-
-        showDetailContent();
-
+        updateList();
         updateIcon();
     }
 
@@ -333,8 +318,15 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         Intent intent = getIntent();
 
         mIsButtonShownUp = intent.getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
+        mIsPreview = intent.getBooleanExtra(EXTRA_PREVIEW, false);
 
-        if (intent.hasExtra(EXTRA_STICKER_PACK_DATA)) {
+        if (mIsPreview) {
+            // preview
+            mStickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
+            mPackName = mStickerPack.name;
+            mAuthor = mStickerPack.publisher;
+
+        } else if (intent.hasExtra(EXTRA_STICKER_PACK_DATA)) {
             // edit
             mStickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
             mPackName = mStickerPack.name;
@@ -358,15 +350,69 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         }
     }
 
-    private void showDetailContent() {
+    /**
+     * 列表更新, 會重建mAllItems
+     **/
+    private void updateList() {
         mAllItems.clear();
         for (int i = 0; i < mStickerPack.stickers.size(); i++) {
             StickerItem item = new StickerItem(mStickerPack.stickers.get(i).imageFileUrl);
             mAllItems.add(item);
         }
-        mAdapter.setStickerItems(mAllItems);
+        mAdapter.setStickerItems(mAllItems, mIsPreview);
         setCanPublish(isValidContent(), true);
         mAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 列表更新
+     **/
+    private void updateList(int startIndex) {
+        mAdapter.notifyItemRangeChanged(startIndex, mAdapter.getItemCount() - 1);
+
+        updateIcon();
+        setCanPublish(isValidContent(), true);
+    }
+
+    private void updateIcon() {
+        mPackNameTextView.setText(mPackName);
+        mPackPublisherTextView.setText(mAuthor);
+
+        if (mStickerPack == null) {
+            return;
+        }
+        Log.e("AAAAA", "AA=" + mStickerPack.trayImageFile);
+        Log.e("AAAAA", "ＢＢ=" + StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile));
+        Log.e("AAAAA", "cc=" + mStickerPack.trayImageUrl);
+
+        Glide.with(mPackTrayImageView.getContext())
+                .load(StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile))
+                .dontTransform()
+                .dontAnimate()
+                .into(mPackTrayImageView);
+
+        if (mIsPreview) {
+            mPackTrayImageBG.setBackgroundColor(Color.TRANSPARENT);
+        }
+//        mPackTrayIcon.setImageURI(StickerPackLoader.getStickerAssetUri(mStickerPack.identifier, mStickerPack.trayImageFile));
+//        mPackSizeTextView.setText(Formatter.formatShortFileSize(this, mStickerPack.getTotalSize()));
+    }
+
+    public void updateAddButton(Boolean isWhitelisted) {
+        if (isWhitelisted) {
+            mAddToWaButton.setVisibility(View.GONE);
+            mAlreadyAddedText.setVisibility(View.VISIBLE);
+        } else {
+            mAddToWaButton.setVisibility(View.VISIBLE);
+            mAlreadyAddedText.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 設置Add to wa按鈕的enable
+     **/
+    private void setCanPublish(boolean validContent, boolean canPublish) {
+
     }
 
     private boolean isValidContent() {
@@ -494,11 +540,13 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         }
     }
 
-    /**
-     * 設置Add to wa按鈕的enable
-     **/
-    private void setCanPublish(boolean validContent, boolean canPublish) {
-
+    @Override
+    protected void onDestroy() {
+        if (mPublishStickerPackTask != null) {
+            mPublishStickerPackTask.cancel(true);
+            mPublishStickerPackTask = null;
+        }
+        super.onDestroy();
     }
 
     /**
@@ -513,19 +561,6 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         mDownloadProgressDialog = new WaStickerDialog(this, R.style.CustomDialog, mStickerPack);
         mDownloadProgressDialog.setCancelable(false);
         mDownloadProgressDialog.show();
-    }
-
-    /**
-     * Update AddToWaButton
-     **/
-    public void updateAddUI(Boolean isWhitelisted) {
-        if (isWhitelisted) {
-            mAddToWaButton.setVisibility(View.GONE);
-            mAlreadyAddedText.setVisibility(View.VISIBLE);
-        } else {
-            mAddToWaButton.setVisibility(View.VISIBLE);
-            mAlreadyAddedText.setVisibility(View.GONE);
-        }
     }
 
     /**
@@ -557,8 +592,18 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
         }
     }
 
+    /**
+     * 出發去外部取得圖片路徑
+     **/
+    private void showDialogFragment() {
+        ChooseImageSourceDialogFragment fragment = ChooseImageSourceDialogFragment.newInstance();
+        fragment.setCallBack(CreateStickerPackDetailActivity.this);
+        FragmentUtil.showDialogFragment(CreateStickerPackDetailActivity.this.getSupportFragmentManager(), fragment, ChooseImageSourceDialogFragment.DIALOG_FRAGMENT);
+    }
 
-    /**從外部取得圖片路徑**/
+    /**
+     * 處理從外部取得的圖片路徑
+     **/
     @Override
     public void onGetImagePathFromOutside(ArrayList<String> imagePaths) {
         handleReceivedImagePaths(imagePaths);
@@ -601,12 +646,15 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
             StickerItem item = mAllItems.get(itemIndex);
             item.setImageUrl(imagePath);
             mStickerPack.stickers.get(itemIndex).imageFileUrl = imagePath;
+
+            if (itemIndex == 0) {
+                // 第一張要順便塞給Icon
+                mStickerPack.trayImageFile = imagePath;
+            }
         }
 
-        mAdapter.notifyItemRangeChanged(lastIndex, mAdapter.getItemCount());
-
+        updateList(lastIndex);
         WAStickerManager.getInstance().setLastOperatedStickerPackStateByPriority(WAStickerManager.LastOperatedStickerPackState.Update);
         WAStickerManager.getInstance().update(getApplicationContext(), mStickerPack, WAStickerManager.FileStickerPackType.Local);
-        setCanPublish(isValidContent(), false);
     }
 }

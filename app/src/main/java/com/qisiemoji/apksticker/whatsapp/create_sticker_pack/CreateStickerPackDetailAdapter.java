@@ -1,6 +1,7 @@
 package com.qisiemoji.apksticker.whatsapp.create_sticker_pack;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -20,15 +21,17 @@ public class CreateStickerPackDetailAdapter extends RecyclerView.Adapter<Recycle
     public static final int TYPE_STICKER = 0x1001;
 
     private ArrayList<StickerItem> stickerItems;
+    private boolean isPreview;
     private CreateStickerPackDetailAdapterCallback createStickerPackDetailAdapterCallback;
 
     public CreateStickerPackDetailAdapter(Context context, ArrayList<StickerItem> items, CreateStickerPackDetailAdapterCallback cb) {
-        stickerItems = items;
-        createStickerPackDetailAdapterCallback = cb;
+        this.stickerItems = items;
+        this.createStickerPackDetailAdapterCallback = cb;
     }
 
-    public void setStickerItems(ArrayList<StickerItem> items) {
-        stickerItems = items;
+    public void setStickerItems(ArrayList<StickerItem> items, boolean isPreview) {
+        this.stickerItems = items;
+        this.isPreview = isPreview;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class CreateStickerPackDetailAdapter extends RecyclerView.Adapter<Recycle
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             default:
-                return new StickerHolder(inflater.inflate(StickerHolder.LAYOUT, parent, false), createStickerPackDetailAdapterCallback);
+                return new StickerHolder(inflater.inflate(StickerHolder.LAYOUT, parent, false), isPreview, createStickerPackDetailAdapterCallback);
         }
     }
 
@@ -63,18 +66,19 @@ public class CreateStickerPackDetailAdapter extends RecyclerView.Adapter<Recycle
         static final int LAYOUT = R.layout.item_view_create_sticker_pack_detail;
 
         StickerItem stickerItem;
+        boolean isPreview;
         CreateStickerPackDetailAdapterCallback callback;
         View imageContent;
         AppCompatImageView imageView;
         AppCompatImageView delete;
 
-        StickerHolder(View itemView, CreateStickerPackDetailAdapterCallback cb) {
+        StickerHolder(View itemView, boolean isPreview, CreateStickerPackDetailAdapterCallback cb) {
             super(itemView);
-            callback = cb;
+            this.isPreview = isPreview;
+            this.callback = cb;
             imageContent = itemView.findViewById(R.id.image_content);
             imageView = itemView.findViewById(R.id.image);
             delete = itemView.findViewById(R.id.delete);
-
 
             int screenWidth = DisplayUtil.getScreenWidth(imageView.getContext());
             int dividerWidth = imageView.getContext().getResources().getDimensionPixelOffset(R.dimen.create_pack_rv_divider_width);
@@ -89,24 +93,31 @@ public class CreateStickerPackDetailAdapter extends RecyclerView.Adapter<Recycle
 
         void bind(StickerItem item) {
             stickerItem = item;
+            imageContent.setVisibility(View.VISIBLE);
+            imageView.setImageDrawable(null);
+            imageView.setOnClickListener(this);
+            delete.setOnClickListener(this);
+
             if (!TextUtils.isEmpty(stickerItem.getImageUrl())) {
-                imageContent.setVisibility(View.VISIBLE);
-                delete.setOnClickListener(this);
-                imageView.setImageDrawable(null);
+                delete.setVisibility(isPreview ? View.INVISIBLE : View.VISIBLE);
                 Glide.with(imageView.getContext())
                         .load(stickerItem.getImageUrl())
+                        .dontTransform()
                         .dontAnimate()
                         .into(imageView);
             } else {
-                delete.setOnClickListener(null);
+                delete.setVisibility(View.INVISIBLE);
             }
 
-            imageView.setOnClickListener(this);
+            if (isPreview) {
+                imageContent.setBackgroundColor(Color.TRANSPARENT);
+            }
+
         }
 
         @Override
         public void onClick(View v) {
-            if (callback == null) {
+            if (callback == null || isPreview) {
                 return;
             }
 

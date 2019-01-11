@@ -73,31 +73,33 @@ public class StickerPackLoader {
             stickerPack.setStickers(stickers);
             StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
         }
-        if(!TextUtils.isEmpty(exception) && BuildConfig.SHOULD_VALIDATE){
+        if (!TextUtils.isEmpty(exception) && BuildConfig.SHOULD_VALIDATE) {
             throw new IllegalStateException("Asset file doesn't exist. pack:");
         }
         return stickerPackList;
     }
-    public static String exception="";
+
+    public static String exception = "";
+
     @NonNull
     private static List<Sticker> getStickersForPack(Context context, StickerPack stickerPack) {
         final List<Sticker> stickers = fetchFromContentProviderForStickers(stickerPack.identifier, context.getContentResolver());
-        Log.i("xthwa","size="+stickers.size());
-        String path = FileUtils2.getFileDir(context,StickerContentProvider.STICKERS_FILE
-                +File.separator+stickerPack.identifier) + File.separator;
-        if(!BuildConfig.IS_CONTAINS_ASSET){
+        Log.i("xthwa", "size=" + stickers.size());
+        String path = FileUtils2.getFileDir(context, StickerContentProvider.STICKERS_FILE
+                + File.separator + stickerPack.identifier) + File.separator;
+        if (!BuildConfig.IS_CONTAINS_ASSET) {
             //copy trayimage
-            File file = new File(path+stickerPack.trayImageFile);
-            assetsToFile(context,stickerPack.identifier+"/"+stickerPack.trayImageFile,file);
+            File file = new File(path + stickerPack.trayImageFile);
+            assetsToFile(context, stickerPack.identifier + "/" + stickerPack.trayImageFile, file);
         }
-        for (int i = 0;i<stickers.size();i++) {
+        for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);
             final byte[] bytes;
             try {
-                if(!BuildConfig.IS_CONTAINS_ASSET){
+                if (!BuildConfig.IS_CONTAINS_ASSET) {
                     //copy sticker
-                    File file1 = new File(path+sticker.imageFileName);
-                    assetsToFile(context,stickerPack.identifier+"/"+sticker.imageFileName,file1);
+                    File file1 = new File(path + sticker.imageFileName);
+                    assetsToFile(context, stickerPack.identifier + "/" + sticker.imageFileName, file1);
                 }
 
                 bytes = fetchStickerAsset(stickerPack.identifier, sticker.imageFileName, context.getContentResolver());
@@ -106,8 +108,8 @@ public class StickerPackLoader {
                 }
                 sticker.setSize(bytes.length);
             } catch (IOException | IllegalArgumentException e) {
-                Log.i("xthwa","exception="+sticker.imageFileName);
-                exception +=stickerPack.name+"="+sticker.imageFileName+";";
+                Log.i("xthwa", "exception=" + sticker.imageFileName);
+                exception += stickerPack.name + "=" + sticker.imageFileName + ";";
 //                throw new IllegalStateException("Asset file doesn't exist. pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName, e);
             }
 
@@ -115,29 +117,29 @@ public class StickerPackLoader {
         return stickers;
     }
 
-    public static boolean assetsToFile(Context context,String name,File file){
-        if(TextUtils.isEmpty(name) || file == null){
+    public static boolean assetsToFile(Context context, String name, File file) {
+        if (TextUtils.isEmpty(name) || file == null) {
             return false;
         }
-        if(file.exists()){
+        if (file.exists()) {
             return true;
         }
         InputStream is = null;
         FileOutputStream fos = null;
         boolean result = false;
-        try{
+        try {
             is = context.getAssets().open(name);
             fos = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
-            int byteCount=0;
-            while((byteCount=is.read(buffer))!=-1) {//循环从输入流读取 buffer字节
+            int byteCount = 0;
+            while ((byteCount = is.read(buffer)) != -1) {//循环从输入流读取 buffer字节
                 fos.write(buffer, 0, byteCount);//将读取的输入流写入到输出流
             }
             fos.flush();//刷新缓冲区
             result = true;
-        }catch (Exception e){
+        } catch (Exception e) {
             file.delete();
-        }finally {
+        } finally {
             FileUtils2.closeQuietly(is);
             FileUtils2.closeQuietly(fos);
         }
@@ -210,6 +212,15 @@ public class StickerPackLoader {
     }
 
     public static Uri getStickerAssetUri(String identifier, String stickerName) {
-        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(StickerContentProvider.STICKERS_ASSET).appendPath(identifier).appendPath(stickerName).build();
+        if (TextUtils.isEmpty(stickerName)) {
+            return null;
+        }
+
+        File imageFile = new File(stickerName);
+        if (imageFile.exists()) {
+            return Uri.fromFile(imageFile);
+        } else {
+            return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(StickerContentProvider.STICKERS_ASSET).appendPath(identifier).appendPath(stickerName).build();
+        }
     }
 }
