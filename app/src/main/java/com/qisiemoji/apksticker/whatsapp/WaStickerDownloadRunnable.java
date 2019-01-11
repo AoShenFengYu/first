@@ -10,9 +10,12 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.qisiemoji.apksticker.util.FileUtils2;
+
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 /**
- * webp文件下载线程
+ * webp文件下载线程，但不負責轉web，轉web交由PublishStickerPackTask
  */
 public class WaStickerDownloadRunnable extends Thread {
 
@@ -30,51 +33,57 @@ public class WaStickerDownloadRunnable extends Thread {
     private static final long MAX_STICKER_SIZE = 100000;
     private static final long MAX_ICON_SIZE = 50000;
     public static final String WEBP = ".webp";
+    public static final String TRAY_IMAGE_NAME = "file";
+    public static final String STICKER_IMAGE_NAME = "file_";
 
     private Context context;
     private StickerPack stickerPack;
     private Handler handler;
 
-    public WaStickerDownloadRunnable(Context context, Handler handler, StickerPack stickerPack){
+    public WaStickerDownloadRunnable(Context context, Handler handler, StickerPack stickerPack) {
         this.context = context;
         this.stickerPack = stickerPack;
         this.handler = handler;
     }
+
     private boolean isCancel;
-    public void cancel(){
+
+    public void cancel() {
         isCancel = true;
     }
 
     @Override
     public void run() {
-        if(stickerPack == null){
+        if (stickerPack == null) {
             onError();
             return;
         }
-        if(stickerPack.stickers == null){
+        if (stickerPack.stickers == null) {
             onError();
             return;
         }
         File file = null;
-        int totleSize = stickerPack.stickers.size()+1, count = 0,errorTimes = 0;
+        int totleSize = computeTotalSize(stickerPack);
+        int count = 0, errorTimes = 0;
         stickerPack.totle = totleSize;
-        String path = FileUtils2.getFileDir(context,StickerContentProvider.STICKERS_FILE
-                +File.separator+stickerPack.identifier) + File.separator;
+        String path = FileUtils2.getFileDir(context, StickerContentProvider.STICKERS_FILE
+                + File.separator + stickerPack.identifier) + File.separator;
         //下载icon(tray-image)
-        while(errorTimes < ERROR_LIMIT){
-            File waFile = new File(path+stickerPack.trayImageFile);
+        while (errorTimes < ERROR_LIMIT) {
+            // 停用stickerPack.trayImageFile，統一固定所有stickerPack.trayImageFile
+            File waFile = new File(path + TRAY_IMAGE_NAME + WEBP);
             //如果icon已经下载，成功计数加一
-            if(waFile.exists()){
+            if (waFile.exists()) {
                 count++;
-                downloadStatus(totleSize,count);
+                downloadStatus(totleSize, count);
                 break;
             }
             //"https://cdn.kikakeyboard.com/navigation/sticker/sticker_store/MikaChristmas/assets/1/file_1.webp"
-            file = downloadFile(stickerPack.trayImageUrl);
+            file = downloadFile(stickerPack.trayImageFile);
             if (file == null) {
                 errorTimes++;
             } else {
-                boolean isValid = isValid(stickerPack.trayImageUrl, file, MAX_ICON_SIZE);
+                boolean isValid = isValid(stickerPack.trayImageFile, file, MAX_ICON_SIZE);
                 if (!isValid) {
                     generateWebp(file.getPath(), waFile.getPath(), MAX_ICON_SIZE);
                 } else {
@@ -90,23 +99,27 @@ public class WaStickerDownloadRunnable extends Thread {
                 }
             }
         }
-        if(isCancel){
+        if (isCancel) {
             return;
         }
         //下载sticker
-        for(Sticker sticker:stickerPack.stickers){
-            if(isCancel){
+        for (int i = 0; i < totleSize - 1; i++) {
+            Sticker sticker = stickerPack.stickers.get(i);
+
+            if (isCancel) {
                 return;
             }
-            File waFile = new File(path+sticker.imageFileName);
+
+            // 停用sticker.imageFileName，統一固定所有sticker.imageFileName
+            File waFile = new File(path + STICKER_IMAGE_NAME + i + WEBP);
             //如果sticker已经下载，成功计数加一
-            if(waFile.exists()){
+            if (waFile.exists()) {
                 count++;
-                downloadStatus(totleSize,count);
+                downloadStatus(totleSize, count);
                 continue;
             }
 
-            while(errorTimes < ERROR_LIMIT){
+            while (errorTimes < ERROR_LIMIT) {
                 file = downloadFile(sticker.imageFileUrl);
                 if (file == null) {
                     errorTimes++;
@@ -128,21 +141,32 @@ public class WaStickerDownloadRunnable extends Thread {
                 }
             }
         }
-        if(isCancel){
+        if (isCancel) {
             return;
         }
+
         //下载成功发送成功的消息
-        if(errorTimes < ERROR_LIMIT && count >= totleSize){
+        if (errorTimes < ERROR_LIMIT && count >= totleSize) {
             Message msg = handler.obtainMessage();
             msg.obj = stickerPack;
             msg.what = StickerPackListActivity.USER_DOWNLOAD_SUCCESS;
             msg.sendToTarget();
-        }else{
+        } else {
             onError();
         }
     }
 
-    private void onError(){
+    private int computeTotalSize(StickerPack stickerPack) {
+        int result = 1;
+        for (Sticker sticker : stickerPack.stickers) {
+            if (!TextUtils.isEmpty(sticker.imageFileUrl)) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    private void onError() {
         Message msg = handler.obtainMessage();
         msg.what = StickerPackListActivity.USER_DOWNLOAD_FAIL;
         msg.obj = stickerPack;
@@ -151,10 +175,11 @@ public class WaStickerDownloadRunnable extends Thread {
 
     /**
      * 通知界面更新下载进度
+     *
      * @param totle
      * @param count
      */
-    private void downloadStatus(int totle,int count){
+    private void downloadStatus(int totle, int count) {
         stickerPack.count = count;
         stickerPack.totle = totle;
         Message msg = handler.obtainMessage();
@@ -165,20 +190,28 @@ public class WaStickerDownloadRunnable extends Thread {
 
     /**
      * 下载图片文件
+     *
      * @param url
      * @return
      */
-    private File downloadFile(String url){
-        if(TextUtils.isEmpty(url)){
+    private File downloadFile(String url) {
+        if (TextUtils.isEmpty(url)) {
             return null;
         }
-        File file = null;
-        try{
+
+        File  file = new File(url);
+        if (file.exists()) {
+            // 本地端的圖片
+            return file;
+        }
+
+        try {
+            // 網路上的圖片
             file = Glide.with(context)
                     .load(url)
-                    .downloadOnly(512,512)
+                    .downloadOnly(WA_WEB_IMAGE_WIDTH, WA_WEB_IMAGE_HEIGHT)
                     .get();
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return file;
@@ -189,7 +222,7 @@ public class WaStickerDownloadRunnable extends Thread {
             return false;
         }
 
-        if(TextUtils.isEmpty(url)){
+        if (TextUtils.isEmpty(url)) {
             return false;
         }
 

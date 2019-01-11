@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.bluelinelabs.logansquare.LoganSquare;
 import com.qisiemoji.apksticker.util.FileUtils2;
@@ -72,7 +73,7 @@ public class WAStickerManager {
     /**
      * Publish : for wa publish
      * Local : for local operation
-     * **/
+     **/
     public enum FileStickerPackType {
         Publish, Local, SearchLocal
     }
@@ -82,10 +83,11 @@ public class WAStickerManager {
      * Create : create pack
      * Update : update pack
      * Publish : publish pack
-     * **/
+     **/
     public enum LastOperatedStickerPackState {
         None, Create, Update, Publish
     }
+
     private LastOperatedStickerPackState mLastOperatedStickerPackState = LastOperatedStickerPackState.None;
 
     private final Object mObject = new Object();
@@ -204,12 +206,12 @@ public class WAStickerManager {
 
     @WorkerThread
     public boolean save(@NonNull Context context, StickerPack pack, FileStickerPackType type) {
-        return save(context, pack, type,true);
+        return save(context, pack, type, true);
     }
 
     @WorkerThread
     public boolean save(@NonNull Context context, StickerPack pack, FileStickerPackType type, boolean update) {
-        if(pack == null){
+        if (pack == null) {
             return false;
         }
 
@@ -319,23 +321,33 @@ public class WAStickerManager {
             String srcTrayImageUrl = stickerPack.trayImageFile;
             if (srcTrayImageUrl != null) {
                 String trayImagePath = identifierFolderPath + TRAY_IMAGE_FILE_NAME;
-                generateWebp(srcTrayImageUrl, trayImagePath, MAX_ICON_SIZE);
+                File trayImageFile = new File(trayImagePath);
+                if (!trayImageFile.exists()) {
+                    generateWebp(srcTrayImageUrl, trayImagePath, MAX_ICON_SIZE);
+                }
             }
 
-            for (int index = 0 ; index < stickerPack.stickers.size() ; index++) {
+            for (int index = 0; index < stickerPack.stickers.size(); index++) {
                 String srcStickerUrl = stickerPack.stickers.get(index).getImageFileUrl();
-                if (srcStickerUrl == null) {
+                if (TextUtils.isEmpty(srcStickerUrl)) {
                     continue;
                 }
 
                 String fileName = FILE_ + String.valueOf(index) + WEBP;
                 String filePath = identifierFolderPath + fileName;
-                long fileSize = generateWebp(srcStickerUrl, filePath, MAX_STICKER_SIZE);
+                File file = new File(filePath);
+                long fileSize;
+
+                if (!file.exists()) {
+                    fileSize = generateWebp(srcStickerUrl, filePath, MAX_STICKER_SIZE);
+                } else {
+                    fileSize = file.length();
+                }
+
                 Sticker sticker = new Sticker(fileName, new ArrayList<String>());
                 sticker.setSize(fileSize);
                 sticker.setImageFileUrl(filePath);
                 stickers.add(sticker);
-
             }
 
             StickerPack pack = new StickerPack(stickerPack.identifier, stickerPack.name, stickerPack.publisher, TRAY_IMAGE_FILE_NAME, "", "", "", "");

@@ -17,6 +17,7 @@ import com.bluelinelabs.logansquare.annotation.JsonObject;
 import java.util.List;
 @JsonObject
 public class Sticker implements Parcelable {
+    @JsonField
     public String imageFileName;
     @JsonField(name = "image_file")
     public String imageFileUrl;
@@ -36,9 +37,9 @@ public class Sticker implements Parcelable {
 
     protected Sticker(Parcel in) {
         imageFileName = in.readString();
+        imageFileUrl = in.readString();
         emojis = in.createStringArrayList();
         size = in.readLong();
-        imageFileUrl = in.readString();
     }
 
     public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {
@@ -74,8 +75,8 @@ public class Sticker implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(imageFileName);
+        dest.writeString(imageFileUrl);
         dest.writeStringList(emojis);
         dest.writeLong(size);
-        dest.writeString(imageFileUrl);
     }
 }
