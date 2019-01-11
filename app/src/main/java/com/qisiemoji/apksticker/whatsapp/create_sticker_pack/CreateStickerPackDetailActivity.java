@@ -470,6 +470,7 @@ public class CreateStickerPackDetailActivity extends AddStickerPackActivity impl
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_STORAGE: {
                 if (grantResults.length > 0
